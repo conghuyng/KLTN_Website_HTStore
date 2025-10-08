@@ -1,4 +1,4 @@
-import * as XLSX from 'xlsx/xlsx.mjs'
+import * as XLSX from 'xlsx';
 import { PREFIX_CURRENCY } from '../utils/constant'
 class CommonUtils {
     static getBase64(file) {
