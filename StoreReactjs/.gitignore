@@ -4,11 +4,6 @@
 /node_modules
 /.pnp
 .pnp.js
-<<<<<<< HEAD:StoreReact/.gitignore
-node_modules/
-.cache/
-=======
->>>>>>> 43fad830495776cc4500425d8d5fa3247055512e:StoreReactjs/.gitignore
 
 # testing
 /coverage

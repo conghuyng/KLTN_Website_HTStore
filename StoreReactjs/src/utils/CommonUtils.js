@@ -1,8 +1,4 @@
-<<<<<<< HEAD:StoreReact/src/utils/CommonUtils.js
-import * as XLSX from 'xlsx';
-=======
 import * as XLSX from 'xlsx/xlsx.mjs'
->>>>>>> 43fad830495776cc4500425d8d5fa3247055512e:StoreReactjs/src/utils/CommonUtils.js
 import { PREFIX_CURRENCY } from '../utils/constant'
 class CommonUtils {
     static getBase64(file) {
