@@ -4,7 +4,11 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class Message extends Model {
+<<<<<<< HEAD
        
+=======
+   
+>>>>>>> main
         static associate(models) {
           
 

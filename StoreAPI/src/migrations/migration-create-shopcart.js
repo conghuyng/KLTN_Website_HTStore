@@ -4,39 +4,23 @@ const { sequelize } = require("../models");
 
 module.exports = {
     up: async (queryInterface, Sequelize) => {
-        await queryInterface.createTable('Products', {
+        await queryInterface.createTable('Shopcarts', {
             id: {
                 allowNull: false,
                 autoIncrement: true,
                 primaryKey: true,
                 type: Sequelize.INTEGER
             },
-            name: {
-                type: Sequelize.STRING
-            },
-            contentHTML: {
-                type: Sequelize.TEXT('long')
-            },
-            contentMarkdown: {
-                type: Sequelize.TEXT('long')
-            },
-            statusId: {
-                type: Sequelize.STRING
-            },
-            categoryId: {
-                type: Sequelize.STRING
-            },
-            view: {
+            userId: {
                 type: Sequelize.INTEGER
             },
-
-            madeby: {
-                type: Sequelize.STRING
+            productdetailsizeId: {
+                type: Sequelize.INTEGER
             },
-            material: {
-                type: Sequelize.STRING
+            quantity: {
+                type: Sequelize.INTEGER
             },
-            brandId: {
+            statusId: {
                 type: Sequelize.STRING
             },
             createdAt: {
@@ -50,6 +34,6 @@ module.exports = {
         });
     },
     down: async (queryInterface, Sequelize) => {
-        await queryInterface.dropTable('Products');
+        await queryInterface.dropTable('Shopcarts');
     }
 };

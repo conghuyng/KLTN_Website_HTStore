@@ -4,6 +4,10 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class ShopCart extends Model {
+<<<<<<< HEAD
+=======
+   
+>>>>>>> main
         static associate(models) {
 
         }

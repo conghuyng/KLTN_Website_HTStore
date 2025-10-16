@@ -4,6 +4,10 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class Allcode extends Model {
+<<<<<<< HEAD
+=======
+
+>>>>>>> main
         static associate(models) {
             Allcode.hasMany(models.User, { foreignKey: 'genderId', as: 'genderData' })
             Allcode.hasMany(models.User, { foreignKey: 'roleId', as: 'roleData' })

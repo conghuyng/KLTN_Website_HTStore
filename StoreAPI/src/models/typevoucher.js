@@ -4,6 +4,10 @@ const {
 } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
     class TypeVoucher extends Model {
+<<<<<<< HEAD
+=======
+ 
+>>>>>>> main
         static associate(models) {
             TypeVoucher.belongsTo(models.Allcode, { foreignKey: 'typeVoucher', targetKey: 'code', as: 'typeVoucherData' })
             TypeVoucher.hasMany(models.Voucher, { foreignKey: 'typeVoucherId', as: 'typeVoucherOfVoucherData' })
