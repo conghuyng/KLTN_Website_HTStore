@@ -178,11 +178,9 @@ const LoginWebPage = () => {
                         <div className="row">
                             {/* Brand Box */}
                             <div className="col-sm-6 brand">
-                                <a href="#" className="logo">
-                                    MR <span>.</span>
-                                </a>
+                               
                                 <div className="heading">
-                                    <h2>Esier</h2>
+                                    <h2>HTStore</h2>
                                     <p>Sự lựa chọn của bạn</p>
                                 </div>
                             </div>
