@@ -32,7 +32,7 @@ let getBodyHTMLEmailVerify = (dataSend) => {
     let fullname = `${dataSend.firstName} ${dataSend.lastName}`
     let result = `<h3>Xin chào ${fullname}!</h3>
         <p>Bạn nhận được email này vì đã thực hiện lệnh xác thực email!</p>
-        <p>Bui lòng click vào đường link bên dưới để xác nhận và hoàn tất thủ tục xác minh email của bạn</p>
+        <p>Vui lòng click vào đường link bên dưới để xác nhận và hoàn tất thủ tục xác minh email của bạn</p>
         <div>
             <a href="${dataSend.redirectLink}" target=""_blank>Click here</a>
         </div>
@@ -45,7 +45,7 @@ let getBodyHTMLEmailForgotPassword = (dataSend) => {
     let fullname = `${dataSend.firstName} ${dataSend.lastName}`
     let result = `<h3>Xin chào ${fullname}!</h3>
         <p>Bạn nhận được email này vì đã thực hiện lệnh quên mật khẩu!</p>
-        <p>Bui lòng click vào đường link bên dưới để xác nhận quên mật khẩu và lấy lại mật khẩu của bạn</p>
+        <p>Vui lòng click vào đường link bên dưới để xác nhận quên mật khẩu và lấy lại mật khẩu của bạn</p>
         <div>
             <a href="${dataSend.redirectLink}" target=""_blank>Click here</a>
         </div>
