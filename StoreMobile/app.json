@@ -1,0 +1,26 @@
+{
+  "expo": {
+    "name": "storeMobile",
+    "slug": "storeMobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSCameraUsageDescription": "Ứng dụng cần quyền truy cập camera để chụp ảnh đơn hàng.",
+        "NSPhotoLibraryUsageDescription": "Ứng dụng cần quyền truy cập thư viện ảnh để lưu và xem ảnh."
+      }
+    },
+    "android": {
+      "package": "com.anonymous.ecomMobile"
+    },
+    "web": {}
+  }
+}
