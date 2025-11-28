@@ -8,12 +8,26 @@ const TopMenu = (props) => {
         window.location.href = "/login";
     };
 
-    let name =
-        props.user && props.user.id
-            ? `${
-                  props.user && props.user.firstName ? props.user.firstName : ""
-              } ${props.user.lastName}`
-            : "";
+    // fallback to persisted user information when component is rendered without props
+    let localUser = null;
+    try {
+        localUser = JSON.parse(localStorage.getItem("userData"));
+    } catch (error) {
+        localUser = null;
+    }
+    const currentUser = props.user && props.user.id ? props.user : localUser;
+
+    let name = "";
+    if (currentUser && currentUser.id) {
+        const firstName =
+            currentUser && currentUser.firstName ? currentUser.firstName : "";
+        const lastName =
+            currentUser && currentUser.lastName ? currentUser.lastName : "";
+        name = `${firstName} ${lastName}`.trim();
+        if (!name && currentUser.email) {
+            name = currentUser.email.split("@")[0];
+        }
+    }
     return (
         <div className="top_menu">
             <div className="container">
@@ -28,12 +42,12 @@ const TopMenu = (props) => {
                         <div className="float-right">
                             <ul className="right_side">
                                 <li>
-                                    {props.user && props.user.id ? (
+                                    {currentUser && currentUser.id ? (
                                         <NavLink
                                             exact
                                             to={`/user/detail/${
-                                                props.user && props.user.id
-                                                    ? props.user.id
+                                                currentUser && currentUser.id
+                                                    ? currentUser.id
                                                     : ""
                                             }`}
                                         >
@@ -43,17 +57,20 @@ const TopMenu = (props) => {
                                         <a href="/login">Đăng nhập</a>
                                     )}
                                 </li>
-                                <li style={{ cursor: "pointer" }}>
-                                    {props.user && props.user.id ? (
-                                        <a onClick={() => handleLogout()}>
+                                <li>
+                                    {currentUser && currentUser.id ? (
+                                        <a
+                                            href="/logout"
+                                            onClick={(event) => {
+                                                event.preventDefault();
+                                                handleLogout();
+                                            }}
+                                        >
                                             Đăng xuất
                                         </a>
                                     ) : (
                                         <a href="/login">Đăng ký</a>
                                     )}
-                                </li>
-                                <li>
-                                    <a>VI</a>
                                 </li>
                             </ul>
                         </div>
