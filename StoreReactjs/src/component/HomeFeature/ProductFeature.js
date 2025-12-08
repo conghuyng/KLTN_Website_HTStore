@@ -14,6 +14,20 @@ function ProductFeature(props) {
         slidesToScroll: 1,
     };
 
+    // Debug logging
+    React.useEffect(() => {
+        console.log(`ProductFeature [${props.title}]:`, {
+            hasData: !!props.data,
+            dataLength: props.data?.length || 0,
+            firstItem: props.data?.[0] || null
+        });
+    }, [props.data, props.title]);
+
+    // Nếu không có dữ liệu, không render
+    if (!props.data || props.data.length === 0) {
+        return null;
+    }
+
     return (
         <section className="feature_product_area section_gap_bottom_custom">
             <div className="container">
@@ -25,7 +39,7 @@ function ProductFeature(props) {
                 <div className="row box-productFeature">
                     <Slider {...settings}>
                         {props.data &&
-                            props.data.length > 3 &&
+                            props.data.length > 0 &&
                             props.data.map((item, index) => {
                                 return (
                                     <ItemProduct

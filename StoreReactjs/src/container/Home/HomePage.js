@@ -27,13 +27,16 @@ function HomePage(props) {
 
     useEffect(() => {
         const userData = JSON.parse(localStorage.getItem('userData'));
+        console.log('HomePage - userData:', userData);
+        
         if (userData) {
             fetchProductRecommend(userData.id)
-
+            fetchProductFeature(userData.id)
+        } else {
+            fetchProductFeature(null)
         }
         fetchBlogFeature()
         fetchDataBrand()
-        fetchProductFeature()
         fetchProductNew()
 
         window.scrollTo(0, 0);
@@ -44,8 +47,11 @@ function HomePage(props) {
             setdataNewBlog(res.data)
         }
     }
-    let fetchProductFeature = async () => {
-        let res = await getProductFeatureService(6)
+    let fetchProductFeature = async (userId) => {
+        let res = await getProductFeatureService({
+            limit: 6,
+            userId: userId
+        })
         if (res && res.errCode === 0) {
             setDataProductFeature(res.data)
         }
@@ -55,7 +61,9 @@ function HomePage(props) {
             limit: 20,
             userId: userId
         })
+        console.log('fetchProductRecommend response:', res);
         if (res && res.errCode === 0) {
+            console.log('fetchProductRecommend data:', res.data);
             setdataProductRecommend(res.data)
         }
     }

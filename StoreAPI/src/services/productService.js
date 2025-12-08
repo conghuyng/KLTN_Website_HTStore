@@ -120,7 +120,7 @@ let getAllProductAdmin = (data) => {
 
                     res.rows[i].price = res.rows[i].productDetail[0].discountPrice
                     res.rows[i].productDetail[j].productImage = await db.ProductImage.findAll({ where: { productdetailId: res.rows[i].productDetail[j].id }, raw: true })
-                    for (let k = 0; k < res.rows[i].productDetail[j].productImage.length > 0; k++) {
+                    for (let k = 0; k < res.rows[i].productDetail[j].productImage.length; k++) {
                         res.rows[i].productDetail[j].productImage[k].image = new Buffer(res.rows[i].productDetail[j].productImage[k].image, 'base64').toString('binary')
                     }
                 }
@@ -178,7 +178,7 @@ let getAllProductUser = (data) => {
 
                     res.rows[i].price = res.rows[i].productDetail[0].discountPrice
                     res.rows[i].productDetail[j].productImage = await db.ProductImage.findAll({ where: { productdetailId: res.rows[i].productDetail[j].id }, raw: true })
-                    for (let k = 0; k < res.rows[i].productDetail[j].productImage.length > 0; k++) {
+                    for (let k = 0; k < res.rows[i].productDetail[j].productImage.length; k++) {
                         res.rows[i].productDetail[j].productImage[k].image = new Buffer(res.rows[i].productDetail[j].productImage[k].image, 'base64').toString('binary')
                     }
                 }
@@ -293,7 +293,7 @@ let getDetailProductById = (id) => {
                 res.productDetail = await db.ProductDetail.findAll({
                     where: { productId: res.id }
                 })
-                for (let i = 0; i < res.productDetail.length > 0; i++) {
+                for (let i = 0; i < res.productDetail.length; i++) {
                     res.productDetail[i].productImage = await db.ProductImage.findAll({ where: { productdetailId: res.productDetail[i].id } })
 
                     res.productDetail[i].productDetailSize = await db.ProductDetailSize.findAll({
@@ -398,7 +398,7 @@ let getAllProductDetailById = (data) => {
                             where: { productdetailId: productdetail.rows[i].id }
                         })
                         if (productdetail.rows[i].productImageData && productdetail.rows[i].productImageData.length > 0) {
-                            for (let j = 0; j < productdetail.rows[i].productImageData.length > 0; j++) {
+                            for (let j = 0; j < productdetail.rows[i].productImageData.length; j++) {
                                 productdetail.rows[i].productImageData[j].image = new Buffer(productdetail.rows[i].productImageData[j].image, 'base64').toString('binary')
                             }
                         }
@@ -754,7 +754,7 @@ let getAllProductDetailSizeById = (data) => {
                     raw: true,
                     nest: true
                 })
-                for (let i = 0; i < productsize.rows.length > 0; i++) {
+                for (let i = 0; i < productsize.rows.length; i++) {
                     let receiptDetail = await db.ReceiptDetail.findAll({ where: { productDetailSizeId: productsize.rows[i].id } })
                     let orderDetail = await db.OrderDetail.findAll({ where: { productId: productsize.rows[i].id } })
                     let quantity = 0
@@ -915,21 +915,73 @@ let deleteProductDetailSize = (data) => {
         }
     })
 }
-let getProductFeature = (limit) => {
+let getProductFeature = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
+            let limit = data.limit || 6;
+            let userId = data.userId || null;
+            
+            // Nếu user chưa đăng nhập, return mảng rỗng (không show sản phẩm đặc trưng)
+            if (!userId) {
+                resolve({
+                    errCode: 0,
+                    data: []
+                })
+                return;
+            }
+
+            // Bước 1: Lấy sản phẩm user đã mua
+            let userOrders = await db.OrderProduct.findAll({
+                where: { userId: userId },
+                raw: true
+            })
+
+            let purchasedProductIds = [];
+            if (userOrders && userOrders.length > 0) {
+                for (let order of userOrders) {
+                    let orderDetails = await db.OrderDetail.findAll({
+                        where: { orderId: order.id }
+                    })
+                    for (let detail of orderDetails) {
+                        purchasedProductIds.push(detail.productId);
+                    }
+                }
+            }
+
+            // Nếu user chưa mua gì, không show sản phẩm đặc trưng
+            if (purchasedProductIds.length === 0) {
+                resolve({
+                    errCode: 0,
+                    data: []
+                })
+                return;
+            }
+
+            // Bước 2: Lấy categories của sản phẩm đã mua
+            let purchasedProducts = await db.Product.findAll({
+                where: { id: purchasedProductIds },
+                attributes: ['categoryId']
+            })
+
+            let purchasedCategories = [...new Set(purchasedProducts.map(p => p.categoryId))];
+
+            // Bước 3: Lấy sản phẩm hot cùng category
             let res = await db.Product.findAll({
                 include: [
                     { model: db.Allcode, as: 'brandData', attributes: ['value', 'code'] },
                     { model: db.Allcode, as: 'categoryData', attributes: ['value', 'code'] },
                     { model: db.Allcode, as: 'statusData', attributes: ['value', 'code'] },
                 ],
-
+                where: {
+                    categoryId: purchasedCategories,
+                    statusId: 'S1'
+                },
                 limit: +limit,
                 order: [['view', 'DESC']],
                 raw: true,
                 nest: true
             })
+
             for (let i = 0; i < res.length; i++) {
                 let objectFilterProductDetail = {
                     where: { productId: res[i].id }, raw: true
@@ -942,7 +994,7 @@ let getProductFeature = (limit) => {
 
                     res[i].price = res[i].productDetail[0].discountPrice
                     res[i].productDetail[j].productImage = await db.ProductImage.findAll({ where: { productdetailId: res[i].productDetail[j].id }, raw: true })
-                    for (let k = 0; k < res[i].productDetail[j].productImage.length > 0; k++) {
+                    for (let k = 0; k < res[i].productDetail[j].productImage.length; k++) {
                         res[i].productDetail[j].productImage[k].image = new Buffer(res[i].productDetail[j].productImage[k].image, 'base64').toString('binary')
                     }
                 }
@@ -986,7 +1038,7 @@ let getProductNew = (limit) => {
 
                     res[i].price = res[i].productDetail[0].discountPrice
                     res[i].productDetail[j].productImage = await db.ProductImage.findAll({ where: { productdetailId: res[i].productDetail[j].id }, raw: true })
-                    for (let k = 0; k < res[i].productDetail[j].productImage.length > 0; k++) {
+                    for (let k = 0; k < res[i].productDetail[j].productImage.length; k++) {
                         res[i].productDetail[j].productImage[k].image = new Buffer(res[i].productDetail[j].productImage[k].image, 'base64').toString('binary')
                     }
                 }
@@ -1051,7 +1103,7 @@ let getProductShopCart = (data) => {
 
                             productArr[g].price = productArr[g].productDetail[0].discountPrice
                             productArr[g].productDetail[j].productImage = await db.ProductImage.findAll({ where: { productdetailId: productArr[g].productDetail[j].id }, raw: true })
-                            for (let k = 0; k < productArr[g].productDetail[j].productImage.length > 0; k++) {
+                            for (let k = 0; k < productArr[g].productDetail[j].productImage.length; k++) {
                                 productArr[g].productDetail[j].productImage[k].image = new Buffer(productArr[g].productDetail[j].productImage[k].image, 'base64').toString('binary')
                             }
                         }
@@ -1078,45 +1130,64 @@ let getProductRecommend = (data) => {
     return new Promise(async (resolve, reject) => {
         try {
             let productArr = []
-            if (!data.userId && !data.limit) {
+            if (!data.userId || !data.limit) {
                 resolve({
                     errCode: 1,
                     errMessage: 'Missing required parameter!'
                 })
             } else {
-                let recommender = new jsrecommender.Recommender();
-
-                let table = new jsrecommender.Table();
-                let rateList = await db.Comment.findAll({
-                    where: {
-                        star: { [Op.not]: null }
-                    }
+                // Bước 1: Lấy tất cả order của user
+                let userOrders = await db.OrderProduct.findAll({
+                    attributes: ['id']
                 })
 
-                for (let i = 0; i < rateList.length; i++) {
-                    table.setCell(`${rateList[i].productId}`, `${rateList[i].userId}`, rateList[i].star)
-                }
-                let model = recommender.fit(table);
-                let predicted_table = recommender.transform(table);
-
-                for (let i = 0; i < predicted_table.columnNames.length; ++i) {
-                    let user = predicted_table.columnNames[i];
-
-                    for (let j = 0; j < predicted_table.rowNames.length; ++j) {
-                        let product = predicted_table.rowNames[j];
-                        if (user == data.userId && Math.round(predicted_table.getCell(product, user)) > 3) {
-                            let productdata = await db.Product.findOne({ where: { id: product } })
-                            if (productArr.length == +data.limit) {
-                                break;
-                            } else {
-                                productArr.push(productdata)
-                            }
-
-
-                        }
-
+                let purchasedProductIds = [];
+                
+                // Bước 2: Lấy chi tiết từng order để tìm productId
+                for (let order of userOrders) {
+                    let orderDetails = await db.OrderDetail.findAll({
+                        where: { orderId: order.id }
+                    })
+                    for (let detail of orderDetails) {
+                        purchasedProductIds.push(detail.productId);
                     }
                 }
+
+                console.log('Purchased products:', purchasedProductIds);
+
+                // Nếu user chưa mua sản phẩm nào, return mảng rỗng (không recommend)
+                if (purchasedProductIds.length === 0) {
+                    console.log('User has not purchased any products yet');
+                    resolve({
+                        errCode: 0,
+                        data: []
+                    })
+                    return;
+                }
+
+                // Bước 3: Lấy categories của những sản phẩm đã mua
+                let purchasedProducts = await db.Product.findAll({
+                    where: { id: purchasedProductIds },
+                    attributes: ['categoryId']
+                })
+
+                let purchasedCategories = [...new Set(purchasedProducts.map(p => p.categoryId))];
+                console.log('Purchased categories:', purchasedCategories);
+
+                // Bước 4: Recommend những sản phẩm cùng category nhưng chưa mua
+                let recommendedProducts = await db.Product.findAll({
+                    where: {
+                        categoryId: purchasedCategories,
+                        id: { [Op.notIn]: purchasedProductIds },
+                        statusId: 'S1'
+                    },
+                    limit: +data.limit,
+                    order: [['view', 'DESC']]
+                })
+
+                productArr = recommendedProducts;
+
+                // Bước 5: Lấy product detail và image
                 if (productArr && productArr.length > 0) {
                     for (let g = 0; g < productArr.length; g++) {
                         let objectFilterProductDetail = {
@@ -1130,7 +1201,7 @@ let getProductRecommend = (data) => {
 
                             productArr[g].price = productArr[g].productDetail[0].discountPrice
                             productArr[g].productDetail[j].productImage = await db.ProductImage.findAll({ where: { productdetailId: productArr[g].productDetail[j].id }, raw: true })
-                            for (let k = 0; k < productArr[g].productDetail[j].productImage.length > 0; k++) {
+                            for (let k = 0; k < productArr[g].productDetail[j].productImage.length; k++) {
                                 productArr[g].productDetail[j].productImage[k].image = new Buffer(productArr[g].productDetail[j].productImage[k].image, 'base64').toString('binary')
                             }
                         }
@@ -1144,11 +1215,8 @@ let getProductRecommend = (data) => {
 
             }
 
-
-
-
-
         } catch (error) {
+            console.log('Error in getProductRecommend:', error);
             reject(error)
         }
     })
