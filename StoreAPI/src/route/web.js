@@ -54,6 +54,7 @@ let initwebRoutes = (app) => {
     router.get('/api/get-all-product-user', productController.getAllProductUser)
     router.post('/api/unactive-product', middlewareControllers.verifyTokenAdmin, productController.UnactiveProduct)
     router.post('/api/active-product', middlewareControllers.verifyTokenAdmin, productController.ActiveProduct)
+    router.delete('/api/delete-product', middlewareControllers.verifyTokenAdmin, productController.deleteProduct)
     router.get('/api/get-detail-product-by-id', productController.getDetailProductById)
     router.get('/api/get-all-product-detail-by-id', productController.getAllProductDetailById)
     router.get('/api/get-all-product-detail-image-by-id', productController.getAllProductDetailImageById)

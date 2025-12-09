@@ -39,7 +39,7 @@ let getDetailBanner = (id) => {
                     where: { id: id }
                 })
                 if (res && res.image) {
-                    res.image = new Buffer(res.image, 'base64').toString('binary');
+                    res.image = Buffer.from(res.image, 'base64').toString('binary');
                 }
                 resolve({
                     errCode: 0,
@@ -65,7 +65,7 @@ let getAllBanner = (data) => {
             if(data.keyword !=='') objectFilter.where = {...objectFilter.where, name: {[Op.substring]: data.keyword  } }
             let res = await db.Banner.findAndCountAll(objectFilter)
                 if (res.rows && res.rows.length > 0) {
-                    res.rows.map(item => item.image = new Buffer(item.image, 'base64').toString('binary'))
+                    res.rows.map(item => item.image = Buffer.from(item.image, 'base64').toString('binary'))
                 }
                 resolve({
                     errCode: 0,

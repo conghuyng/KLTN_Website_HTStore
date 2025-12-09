@@ -97,6 +97,9 @@ const handleBanProductService = (data) => {
 const handleActiveProductService = (data) => {
     return axios.post(`/api/active-product`, data)
 }
+const handleDeleteProductService = (data) => {
+    return axios.delete(`/api/delete-product`, { data: data })
+}
 const getDetailProductByIdService = (id) => {
     return axios.get(`/api/get-detail-product-by-id?id=${id}`)
 }
@@ -146,7 +149,7 @@ const UpdateProductDetailSizeService = (data) => {
     return axios.put(`/api/update-product-detail-size`, data)
 }
 const DeleteProductDetailSizeService = (data) => {
-    return axios.delete(`/api/delete-product-detail-size`, data)
+    return axios.delete(`/api/delete-product-detail-size`, { data: data })
 }
 const getProductFeatureService = (limit) => {
     return axios.get(`/api/get-product-feature?limit=${limit}`)
@@ -429,7 +432,7 @@ export {
     getAllUsers, getAllCodeService, createNewUser, DeleteUserService, getDetailUserById, UpdateUserService,
     createAllCodeService, getDetailAllcodeById, UpdateAllcodeService, DeleteAllcodeService, handleLoginService,
     handleSendVerifyEmail, handleVerifyEmail, handleChangePassword, CreateNewProduct, getAllProductUser, getAllProductAdmin,
-    handleBanProductService, handleActiveProductService, getDetailProductByIdService, UpdateProductService,
+    handleBanProductService, handleActiveProductService, handleDeleteProductService, getDetailProductByIdService, UpdateProductService,
     getAllProductDetailByIdService, getAllProductDetailImageByIdService, CreateNewProductDetailService,
     getProductDetailByIdService, UpdateProductDetailService, createNewProductImageService, getProductDetailImageByIdService,
     UpdateProductDetailImageService, DeleteProductDetailImageService, DeleteProductDetailService,

@@ -121,7 +121,7 @@ let getAllProductAdmin = (data) => {
                     res.rows[i].price = res.rows[i].productDetail[0].discountPrice
                     res.rows[i].productDetail[j].productImage = await db.ProductImage.findAll({ where: { productdetailId: res.rows[i].productDetail[j].id }, raw: true })
                     for (let k = 0; k < res.rows[i].productDetail[j].productImage.length; k++) {
-                        res.rows[i].productDetail[j].productImage[k].image = new Buffer(res.rows[i].productDetail[j].productImage[k].image, 'base64').toString('binary')
+                        res.rows[i].productDetail[j].productImage[k].image = Buffer.from(res.rows[i].productDetail[j].productImage[k].image, 'base64').toString('binary')
                     }
                 }
             }
@@ -179,7 +179,7 @@ let getAllProductUser = (data) => {
                     res.rows[i].price = res.rows[i].productDetail[0].discountPrice
                     res.rows[i].productDetail[j].productImage = await db.ProductImage.findAll({ where: { productdetailId: res.rows[i].productDetail[j].id }, raw: true })
                     for (let k = 0; k < res.rows[i].productDetail[j].productImage.length; k++) {
-                        res.rows[i].productDetail[j].productImage[k].image = new Buffer(res.rows[i].productDetail[j].productImage[k].image, 'base64').toString('binary')
+                        res.rows[i].productDetail[j].productImage[k].image = Buffer.from(res.rows[i].productDetail[j].productImage[k].image, 'base64').toString('binary')
                     }
                 }
             }
@@ -264,6 +264,98 @@ let ActiveProduct = (data) => {
         }
     })
 }
+let deleteProduct = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!data.id) {
+                resolve({
+                    errCode: 1,
+                    errMessage: 'Missing required parameter!'
+                })
+            } else {
+                let product = await db.Product.findOne({
+                    where: { id: data.id }
+                })
+                if (!product) {
+                    resolve({
+                        errCode: 2,
+                        errMessage: `The product doesn't exist`
+                    })
+                } else {
+                    // Kiểm tra nếu sản phẩm đang được sử dụng trong đơn hàng
+                    let orderDetails = await db.OrderDetail.findAll({
+                        where: { productId: data.id }
+                    })
+                    
+                    if (orderDetails && orderDetails.length > 0) {
+                        resolve({
+                            errCode: 3,
+                            errMessage: 'Không thể xóa sản phẩm này vì đã có trong đơn hàng. Bạn có thể ẩn sản phẩm thay vì xóa.'
+                        })
+                        return;
+                    }
+                    
+                    // Xóa tất cả ProductDetail liên quan
+                    let productDetails = await db.ProductDetail.findAll({
+                        where: { productId: data.id }
+                    })
+                    
+                    for (let detail of productDetails) {
+                        // Lấy tất cả size của product detail này
+                        let productSizes = await db.ProductDetailSize.findAll({
+                            where: { productdetailId: detail.id }
+                        })
+                        
+                        // Xóa từng size và các ràng buộc của nó
+                        for (let size of productSizes) {
+                            // Xóa ReceiptDetail nếu có
+                            await db.ReceiptDetail.destroy({
+                                where: { productDetailSizeId: size.id }
+                            })
+                            
+                            // Xóa ShopCart items
+                            await db.ShopCart.destroy({
+                                where: { productdetailsizeId: size.id }
+                            })
+                            
+                            // Xóa ProductDetailSize
+                            await db.ProductDetailSize.destroy({
+                                where: { id: size.id }
+                            })
+                        }
+                        
+                        // Xóa ProductImage
+                        await db.ProductImage.destroy({
+                            where: { productdetailId: detail.id }
+                        })
+                        
+                        // Xóa ProductDetail
+                        await db.ProductDetail.destroy({
+                            where: { id: detail.id }
+                        })
+                    }
+                    
+                    // Xóa ProductDetail
+                    await db.ProductDetail.destroy({
+                        where: { productId: data.id }
+                    })
+                    
+                    // Xóa Product
+                    await db.Product.destroy({
+                        where: { id: data.id }
+                    })
+                    
+                    resolve({
+                        errCode: 0,
+                        errMessage: 'Product deleted successfully'
+                    })
+                }
+            }
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
 let getDetailProductById = (id) => {
     return new Promise(async (resolve, reject) => {
         try {
@@ -306,7 +398,7 @@ let getDetailProductById = (id) => {
                         nest: true
                     })
                     for (let j = 0; j < res.productDetail[i].productImage.length; j++) {
-                        res.productDetail[i].productImage[j].image = new Buffer(res.productDetail[i].productImage[j].image, 'base64').toString('binary')
+                        res.productDetail[i].productImage[j].image = Buffer.from(res.productDetail[i].productImage[j].image, 'base64').toString('binary')
                     }
                     for (let k = 0; k < res.productDetail[i].productDetailSize.length; k++) {
                         let receiptDetail = await db.ReceiptDetail.findAll({ where: { productDetailSizeId: res.productDetail[i].productDetailSize[k].id } })
@@ -399,7 +491,7 @@ let getAllProductDetailById = (data) => {
                         })
                         if (productdetail.rows[i].productImageData && productdetail.rows[i].productImageData.length > 0) {
                             for (let j = 0; j < productdetail.rows[i].productImageData.length; j++) {
-                                productdetail.rows[i].productImageData[j].image = new Buffer(productdetail.rows[i].productImageData[j].image, 'base64').toString('binary')
+                                productdetail.rows[i].productImageData[j].image = Buffer.from(productdetail.rows[i].productImageData[j].image, 'base64').toString('binary')
                             }
                         }
 
@@ -432,7 +524,7 @@ let getAllProductDetailImageById = (data) => {
                     offset: +data.offset,
                 })
                 if (productImage.rows && productImage.rows.length > 0) {
-                    productImage.rows.map(item => item.image = new Buffer(item.image, 'base64').toString('binary'))
+                    productImage.rows.map(item => item.image = Buffer.from(item.image, 'base64').toString('binary'))
                 }
 
                 resolve({
@@ -592,7 +684,7 @@ let getDetailProductImageById = (id) => {
                     where: { id: id },
                 })
                 if (productdetailImage) {
-                    productdetailImage.image = new Buffer(productdetailImage.image, 'base64').toString('binary');
+                    productdetailImage.image = Buffer.from(productdetailImage.image, 'base64').toString('binary');
                 }
                 resolve({
                     errCode: 0,
@@ -893,6 +985,19 @@ let deleteProductDetailSize = (data) => {
                     raw: false
                 })
                 if (res) {
+                    // Kiểm tra xem size có đang được sử dụng trong giỏ hàng không
+                    let shopCartItems = await db.ShopCart.findAll({
+                        where: { productdetailsizeId: data.id }
+                    })
+                    
+                    if (shopCartItems && shopCartItems.length > 0) {
+                        resolve({
+                            errCode: 3,
+                            errMessage: 'Không thể xóa size này vì đang có trong giỏ hàng của khách hàng!'
+                        })
+                        return;
+                    }
+                    
                     await db.ProductDetailSize.destroy({
                         where: { id: data.id }
                     })
@@ -903,7 +1008,7 @@ let deleteProductDetailSize = (data) => {
                 } else {
                     resolve({
                         errCode: 2,
-                        errMessage: 'Product Image not found!'
+                        errMessage: 'Product size not found!'
                     })
                 }
 
@@ -995,7 +1100,7 @@ let getProductFeature = (data) => {
                     res[i].price = res[i].productDetail[0].discountPrice
                     res[i].productDetail[j].productImage = await db.ProductImage.findAll({ where: { productdetailId: res[i].productDetail[j].id }, raw: true })
                     for (let k = 0; k < res[i].productDetail[j].productImage.length; k++) {
-                        res[i].productDetail[j].productImage[k].image = new Buffer(res[i].productDetail[j].productImage[k].image, 'base64').toString('binary')
+                        res[i].productDetail[j].productImage[k].image = Buffer.from(res[i].productDetail[j].productImage[k].image, 'base64').toString('binary')
                     }
                 }
             }
@@ -1021,6 +1126,7 @@ let getProductNew = (limit) => {
                     { model: db.Allcode, as: 'categoryData', attributes: ['value', 'code'] },
                     { model: db.Allcode, as: 'statusData', attributes: ['value', 'code'] },
                 ],
+                where: { statusId: 'S1' },
                 limit: +limit,
                 order: [['createdAt', 'DESC']],
                 raw: true,
@@ -1039,7 +1145,7 @@ let getProductNew = (limit) => {
                     res[i].price = res[i].productDetail[0].discountPrice
                     res[i].productDetail[j].productImage = await db.ProductImage.findAll({ where: { productdetailId: res[i].productDetail[j].id }, raw: true })
                     for (let k = 0; k < res[i].productDetail[j].productImage.length; k++) {
-                        res[i].productDetail[j].productImage[k].image = new Buffer(res[i].productDetail[j].productImage[k].image, 'base64').toString('binary')
+                        res[i].productDetail[j].productImage[k].image = Buffer.from(res[i].productDetail[j].productImage[k].image, 'base64').toString('binary')
                     }
                 }
             }
@@ -1104,7 +1210,7 @@ let getProductShopCart = (data) => {
                             productArr[g].price = productArr[g].productDetail[0].discountPrice
                             productArr[g].productDetail[j].productImage = await db.ProductImage.findAll({ where: { productdetailId: productArr[g].productDetail[j].id }, raw: true })
                             for (let k = 0; k < productArr[g].productDetail[j].productImage.length; k++) {
-                                productArr[g].productDetail[j].productImage[k].image = new Buffer(productArr[g].productDetail[j].productImage[k].image, 'base64').toString('binary')
+                                productArr[g].productDetail[j].productImage[k].image = Buffer.from(productArr[g].productDetail[j].productImage[k].image, 'base64').toString('binary')
                             }
                         }
                     }
@@ -1153,11 +1259,8 @@ let getProductRecommend = (data) => {
                     }
                 }
 
-                console.log('Purchased products:', purchasedProductIds);
-
                 // Nếu user chưa mua sản phẩm nào, return mảng rỗng (không recommend)
                 if (purchasedProductIds.length === 0) {
-                    console.log('User has not purchased any products yet');
                     resolve({
                         errCode: 0,
                         data: []
@@ -1167,12 +1270,11 @@ let getProductRecommend = (data) => {
 
                 // Bước 3: Lấy categories của những sản phẩm đã mua
                 let purchasedProducts = await db.Product.findAll({
-                    where: { id: purchasedProductIds },
-                    attributes: ['categoryId']
+                    where: { id: { [Op.in]: purchasedProductIds } },
+                    attributes: ['id', 'categoryId']
                 })
 
-                let purchasedCategories = [...new Set(purchasedProducts.map(p => p.categoryId))];
-                console.log('Purchased categories:', purchasedCategories);
+                let purchasedCategories = [...new Set(purchasedProducts.map(p => p.categoryId).filter(c => c))];
 
                 // Bước 4: Recommend những sản phẩm cùng category nhưng chưa mua
                 let recommendedProducts = await db.Product.findAll({
@@ -1202,7 +1304,7 @@ let getProductRecommend = (data) => {
                             productArr[g].price = productArr[g].productDetail[0].discountPrice
                             productArr[g].productDetail[j].productImage = await db.ProductImage.findAll({ where: { productdetailId: productArr[g].productDetail[j].id }, raw: true })
                             for (let k = 0; k < productArr[g].productDetail[j].productImage.length; k++) {
-                                productArr[g].productDetail[j].productImage[k].image = new Buffer(productArr[g].productDetail[j].productImage[k].image, 'base64').toString('binary')
+                                productArr[g].productDetail[j].productImage[k].image = Buffer.from(productArr[g].productDetail[j].productImage[k].image, 'base64').toString('binary')
                             }
                         }
                     }
@@ -1272,6 +1374,7 @@ module.exports = {
     getAllProductUser: getAllProductUser,
     UnactiveProduct: UnactiveProduct,
     ActiveProduct: ActiveProduct,
+    deleteProduct: deleteProduct,
     getDetailProductById: getDetailProductById,
     updateProduct: updateProduct,
     getAllProductDetailById: getAllProductDetailById,
@@ -1295,3 +1398,4 @@ module.exports = {
     getProductRecommend: getProductRecommend,
     getProductsForAI: getProductsForAI
 }
+

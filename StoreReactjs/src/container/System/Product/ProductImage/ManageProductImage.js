@@ -197,26 +197,28 @@ const ManageProductImage = () => {
         }
     }
     let handleDeleteProductSize = async (productdetailsizeId) => {
-        let response = await DeleteProductDetailSizeService({
-            data: {
+        if (window.confirm("Bạn có chắc chắn muốn xóa kích thước này không?")) {
+            let response = await DeleteProductDetailSizeService({
                 id: productdetailsizeId
-            }
-        })
-        if (response && response.errCode === 0) {
-            toast.success("Xóa kích thước thành công !")
-            let arrData = await getAllProductDetailSizeByIdService({
-
-                id: id,
-                limit: PAGINATION.pagerow,
-                offset: numberPage * PAGINATION.pagerow
-
             })
-            if (arrData && arrData.errCode === 0) {
-                setdataProductDetailSize(arrData.data)
-                setcountSizes(Math.ceil(arrData.count / PAGINATION.pagerow))
+            if (response && response.errCode === 0) {
+                toast.success("Xóa kích thước thành công !")
+                let arrData = await getAllProductDetailSizeByIdService({
+
+                    id: id,
+                    limit: PAGINATION.pagerow,
+                    offset: numberPage * PAGINATION.pagerow
+
+                })
+                if (arrData && arrData.errCode === 0) {
+                    setdataProductDetailSize(arrData.data)
+                    setcountSizes(Math.ceil(arrData.count / PAGINATION.pagerow))
+                }
+            } else if (response && response.errCode === 3) {
+                toast.warning(response.errMessage || "Size đang được sử dụng, không thể xóa!")
+            } else {
+                toast.error(response.errMessage || "Xóa kích thước thất bại!")
             }
-        } else {
-            toast.error("Xóa hình ảnh thất bại !")
         }
     }
     let handleChangePage = async (number) => {

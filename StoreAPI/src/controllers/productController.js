@@ -313,12 +313,25 @@ let getProductRecommend = async (req, res) => {
         })
     }
 }
+let deleteProduct = async (req, res) => {
+    try {
+        let data = await productService.deleteProduct(req.body);
+        return res.status(200).json(data);
+    } catch (error) {
+        console.log(error)
+        return res.status(200).json({
+            errCode: -1,
+            errMessage: 'Error from server'
+        })
+    }
+}
 module.exports = {
     createNewProduct: createNewProduct,
     getAllProductAdmin: getAllProductAdmin,
     getAllProductUser: getAllProductUser,
     UnactiveProduct: UnactiveProduct,
     ActiveProduct: ActiveProduct,
+    deleteProduct: deleteProduct,
     getDetailProductById: getDetailProductById,
     updateProduct: updateProduct,
     getAllProductDetailById: getAllProductDetailById,

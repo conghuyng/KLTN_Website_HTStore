@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { getAllProductAdmin, handleBanProductService, handleActiveProductService } from '../../../services/userService';
+import { getAllProductAdmin, handleBanProductService, handleActiveProductService, handleDeleteProductService } from '../../../services/userService';
 import moment from 'moment';
 import { toast } from 'react-toastify';
 import { PAGINATION } from '../../../utils/constant';
@@ -51,6 +51,8 @@ const ManageProduct = () => {
         })
         if (data && data.errCode === 0) {
             toast.success("Ẩn sản phẩm thành công!")
+            localStorage.setItem('refreshProducts', Date.now().toString())
+            window.dispatchEvent(new Event('refreshProducts'))
             let arrData = await getAllProductAdmin({
 
                 sortName: '',
@@ -77,9 +79,28 @@ const ManageProduct = () => {
         })
         if (data && data.errCode === 0) {
             toast.success("Hiện sản phẩm thành công!")
+            localStorage.setItem('refreshProducts', Date.now().toString())
+            window.dispatchEvent(new Event('refreshProducts'))
             loadProduct('');
         } else {
             toast.error("Hiện sản phẩm thất bại!")
+        }
+    }
+    let handleDeleteProduct = async (id) => {
+        if (window.confirm("Bạn có chắc chắn muốn xóa sản phẩm này không? Thao tác này không thể hoàn tác!")) {
+            let data = await handleDeleteProductService({
+                id: id
+            })
+            if (data && data.errCode === 0) {
+                toast.success("Xóa sản phẩm thành công!")
+                localStorage.setItem('refreshProducts', Date.now().toString())
+                window.dispatchEvent(new Event('refreshProducts'))
+                loadProduct('');
+            } else if (data && data.errCode === 3) {
+                toast.warning(data.errMessage || "Sản phẩm đã có trong đơn hàng, không thể xóa!")
+            } else {
+                toast.error(data.errMessage || "Xóa sản phẩm thất bại!")
+            }
         }
     }
     let handleChangePage = async (number) => {
@@ -176,7 +197,7 @@ const ManageProduct = () => {
                                                 <td>{item.madeby}</td>
                                                 <td>{item.view ? item.view : 0}</td>
                                                 <td>{item.statusData.value}</td>
-                                                <td style={{ width: '12%' }}>
+                                                <td style={{ width: '15%' }}>
                                                     <Link to={`/admin/list-product-detail/${item.id}`}>View</Link>
                                                     &nbsp; &nbsp;
                                                     <Link to={`/admin/edit-product/${item.id}`}>Edit</Link>
@@ -185,6 +206,8 @@ const ManageProduct = () => {
                                                         <span onClick={() => handleBanProduct(item.id)} style={{ color: '#0E6DFE', cursor: 'pointer' }} >Ban</span>
                                                         : <span onClick={() => handleActiveProduct(item.id)} style={{ color: '#0E6DFE', cursor: 'pointer' }}   >Active</span>
                                                     }
+                                                    &nbsp; &nbsp;
+                                                    <span onClick={() => handleDeleteProduct(item.id)} style={{ color: 'red', cursor: 'pointer' }}>Delete</span>
 
 
 

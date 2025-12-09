@@ -41,6 +41,45 @@ function HomePage(props) {
 
         window.scrollTo(0, 0);
     }, [])
+
+    // Lắng nghe sự kiện cập nhật sản phẩm từ admin
+    useEffect(() => {
+        let lastRefreshTime = localStorage.getItem('refreshProducts');
+        
+        const checkForUpdates = () => {
+            const currentRefreshTime = localStorage.getItem('refreshProducts');
+            if (currentRefreshTime && currentRefreshTime !== lastRefreshTime) {
+                lastRefreshTime = currentRefreshTime;
+                const userData = JSON.parse(localStorage.getItem('userData'));
+                if (userData) {
+                    fetchProductRecommend(userData.id)
+                    fetchProductFeature(userData.id)
+                } else {
+                    fetchProductFeature(null)
+                }
+                fetchProductNew()
+            }
+        }
+        
+        // Kiểm tra mỗi 500ms để phản hồi nhanh hơn
+        const interval = setInterval(checkForUpdates, 500);
+        
+        // Lắng nghe storage event cho cross-tab
+        window.addEventListener('storage', checkForUpdates);
+        
+        // Lắng nghe custom event cho same-tab
+        const handleRefreshProducts = () => {
+            lastRefreshTime = null; // Force update
+            checkForUpdates();
+        }
+        window.addEventListener('refreshProducts', handleRefreshProducts);
+        
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener('storage', checkForUpdates);
+            window.removeEventListener('refreshProducts', handleRefreshProducts);
+        }
+    }, [])
     let fetchBlogFeature = async () => {
         let res = await getNewBlog(3)
         if (res && res.errCode === 0) {

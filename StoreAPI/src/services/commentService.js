@@ -46,7 +46,7 @@ let getAllReviewByProductId = (id) => {
                 if (res && res.length > 0) {
 
                     for (let i = 0; i < res.length; i++) {
-                        res[i].image = res[i].image ? new Buffer(res[i].image, 'base64').toString('binary') : ''
+                        res[i].image = res[i].image ? Buffer.from(res[i].image, 'base64').toString('binary') : ''
 
                         res[i].childComment = await db.Comment.findAll({ where: { parentId: res[i].id } })
                         res[i].user = await db.User.findOne(
@@ -56,7 +56,7 @@ let getAllReviewByProductId = (id) => {
                                     exclude: ['password']
                                 },
                             })
-                        res[i].user.image = new Buffer(res[i].user.image, 'base64').toString('binary')
+                        res[i].user.image = Buffer.from(res[i].user.image, 'base64').toString('binary')
                     }
                 }
 
@@ -168,7 +168,7 @@ let getAllCommentByBlogId = (id) => {
                 if (res && res.length > 0) {
 
                     for (let i = 0; i < res.length; i++) {
-                        res[i].image = res[i].image ? new Buffer(res[i].image, 'base64').toString('binary') : ''
+                        res[i].image = res[i].image ? Buffer.from(res[i].image, 'base64').toString('binary') : ''
 
                         res[i].childComment = await db.Comment.findAll({ where: { parentId: res[i].id } })
                         res[i].user = await db.User.findOne(
@@ -178,7 +178,7 @@ let getAllCommentByBlogId = (id) => {
                                     exclude: ['password']
                                 },
                             })
-                        res[i].user.image = new Buffer(res[i].user.image, 'base64').toString('binary')
+                        res[i].user.image = Buffer.from(res[i].user.image, 'base64').toString('binary')
                     }
                 }
 

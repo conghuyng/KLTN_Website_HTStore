@@ -92,7 +92,7 @@ let loadMessage = (data) => {
              for(let i =0 ; i< message.length; i++){
                 message[i].userData = await db.User.findOne({where:{id:message[i].userId}})
                 if(message[i].userData.image){
-                    message[i].userData.image = new Buffer(message[i].userData.image, 'base64').toString('binary');
+                    message[i].userData.image = Buffer.from(message[i].userData.image, 'base64').toString('binary');
                 }
              }
             resolve({
@@ -153,11 +153,11 @@ let listRoomOfAdmin = () => {
                     room[i].messageData = await db.Message.findAll({where:{roomId:room[i].id}})
                     room[i].userOneData = await db.User.findOne({where:{id:room[i].userOne}})
                     if(room[i].userOneData.image){
-                        room[i].userOneData.image = new Buffer(room[i].userOneData.image, 'base64').toString('binary');
+                        room[i].userOneData.image = Buffer.from(room[i].userOneData.image, 'base64').toString('binary');
                     }
                     room[i].userTwoData = await db.User.findOne({where:{id:room[i].userTwo}})
                     if(room[i].userTwoData.image){
-                        room[i].userTwoData.image = new Buffer(room[i].userTwoData.image, 'base64').toString('binary');
+                        room[i].userTwoData.image = Buffer.from(room[i].userTwoData.image, 'base64').toString('binary');
                     }
                  }
                 resolve({

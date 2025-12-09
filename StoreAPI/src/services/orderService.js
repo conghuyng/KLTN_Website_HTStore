@@ -154,7 +154,7 @@ let getDetailOrderById = (id) => {
                     nest: true,
                 });
                 if (order.image) {
-                    order.image = new Buffer(order.image, "base64").toString(
+                    order.image = Buffer.from(order.image, "base64").toString(
                         "binary"
                     );
                 }
@@ -209,7 +209,7 @@ let getDetailOrderById = (id) => {
                         j < orderDetail[i].productImage.length;
                         j++
                     ) {
-                        orderDetail[i].productImage[j].image = new Buffer(
+                        orderDetail[i].productImage[j].image = Buffer.from(
                             orderDetail[i].productImage[j].image,
                             "base64"
                         ).toString("binary");
@@ -350,7 +350,7 @@ let getAllOrdersByUser = (userId) => {
                                 f++
                             ) {
                                 orderDetail[k].productImage[f].image =
-                                    new Buffer(
+                                    Buffer.from(
                                         orderDetail[k].productImage[f].image,
                                         "base64"
                                     ).toString("binary");
@@ -756,7 +756,7 @@ let paymentOrderVnpay = (req) => {
 
             var hmac = crypto.createHmac("sha512", secretKey);
             var signed = hmac
-                .update(new Buffer(signData, "utf-8"))
+                .update(Buffer.from(signData, "utf-8"))
                 .digest("hex");
             vnp_Params["vnp_SecureHash"] = signed;
 
@@ -791,7 +791,7 @@ let confirmOrderVnpay = (data) => {
 
             var hmac = crypto.createHmac("sha512", secretKey);
             var signed = hmac
-                .update(new Buffer(signData, "utf-8"))
+                .update(Buffer.from(signData, "utf-8"))
                 .digest("hex");
 
             if (secureHash === signed) {
@@ -869,3 +869,4 @@ module.exports = {
     paymentOrderVnpaySuccess: paymentOrderVnpaySuccess,
     updateImageOrder: updateImageOrder,
 };
+
