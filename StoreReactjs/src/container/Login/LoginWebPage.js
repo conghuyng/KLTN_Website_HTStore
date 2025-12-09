@@ -1,6 +1,6 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import { toast } from "react-toastify";
+import Otp from './Otp';
 import "./LoginWebPage.css";
 import {
     FacebookLoginButton,
@@ -26,6 +26,7 @@ const LoginWebPage = () => {
         phonenumber: "",
         isOpen: false,
     });
+    const [dataUser, setDataUser] = useState(null);
 
     const handleOnChange = (event) => {
         const { name, value } = event.target;
@@ -88,20 +89,10 @@ const LoginWebPage = () => {
         if (res.isCheck === true) {
             toast.error(res.errMessage);
         } else {
+            // Chỉ chuyển sang trang OTP, chưa tạo user
             const { email, lastName, password, phonenumber } = inputValues;
-            let res = await createNewUser({
-                email,
-                lastName,
-                phonenumber,
-                password,
-                roleId: "R2",
-            });
-            if (res && res.errCode === 0) {
-                toast.success("Tạo tài khoản thành công");
-                handleLogin();
-            } else {
-                toast.error(res.errMessage);
-            }
+            toast.success("Vui lòng xác thực OTP để hoàn tất đăng ký");
+            setDataUser({ email, lastName, password, phonenumber, roleId: "R2" });
         }
     };
     const getBase64FromUrl = async (url) => {
@@ -169,6 +160,10 @@ const LoginWebPage = () => {
                 console.log(err.message);
             });
     };
+
+    if (dataUser) {
+        return <Otp dataUser={dataUser} />;
+    }
 
     return (
         <>

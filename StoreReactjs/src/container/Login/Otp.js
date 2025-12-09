@@ -49,8 +49,14 @@ const Otp = (props) => {
 
                 // ...
             }).catch((error) => {
-                console.log(error)
-                toast.error("Gửi mã thất bại !")
+                console.log("Firebase OTP Error:", error)
+                if (error.code === 'auth/invalid-phone-number') {
+                    toast.error("Số điện thoại không hợp lệ!")
+                } else if (error.code === 'auth/quota-exceeded') {
+                    toast.error("Đã vượt quá giới hạn gửi SMS!")
+                } else {
+                    toast.error("Gửi mã thất bại! Vui lòng kiểm tra cấu hình Firebase Phone Authentication")
+                }
             });
     }
     const handleOnChange = event => {
@@ -61,31 +67,27 @@ const Otp = (props) => {
     let submitOTP = async () => {
         const code = +(inputValues.so1 + inputValues.so2 + inputValues.so3 + inputValues.so4 + inputValues.so5 + inputValues.so6);
 
-        await window.confirmationResult.confirm(code).then((result) => {
+        await window.confirmationResult.confirm(code).then(async (result) => {
             // User signed in successfully.
             const user = result.user;
-            toast.success("Đã xác minh số điện thoại !")
-            let createUser = async () => {
-                let res = await createNewUser({
-
-
-                    email: props.dataUser.email,
-                    lastName: props.dataUser.lastName,
-                    phonenumber: props.dataUser.phonenumber,
-                    password: props.dataUser.password,
-                    roleId: props.dataUser.roleId,
-
-                })
-                if (res && res.errCode === 0) {
-                    toast.success("Tạo tài khoản thành công")
-                    handleLogin(props.dataUser.email, props.dataUser.password)
-
-
-                } else {
-                    toast.error(res.errMessage)
-                }
+            toast.success("Xác thực OTP thành công!")
+            
+            // Tạo user sau khi xác thực OTP thành công
+            let res = await createNewUser({
+                email: props.dataUser.email,
+                lastName: props.dataUser.lastName,
+                phonenumber: props.dataUser.phonenumber,
+                password: props.dataUser.password,
+                roleId: props.dataUser.roleId,
+            });
+            
+            if (res && res.errCode === 0) {
+                toast.success("Tạo tài khoản thành công!")
+                // Đăng nhập sau khi tạo user thành công
+                handleLogin(props.dataUser.email, props.dataUser.password)
+            } else {
+                toast.error(res.errMessage)
             }
-            createUser()
 
             // ...
         }).catch((error) => {
