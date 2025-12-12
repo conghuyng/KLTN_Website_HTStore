@@ -26,7 +26,7 @@ const SideBar = () => {
                         </Link>
 
                         <div className="sb-sidenav-menu-heading">Quản lý</div>
-                        {user && user.roleId === "R1" &&
+                        {user && (user.roleId === "R1" || user.roleId === "R4" || user.roleId === "R3") &&
                             <>
                                 <a className="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
                                     <div className="sb-nav-link-icon"><i className="fas fa-users"></i></div>
