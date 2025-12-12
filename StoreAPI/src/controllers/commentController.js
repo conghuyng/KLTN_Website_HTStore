@@ -110,6 +110,20 @@ module.exports = {
     createNewComment:createNewComment,
     getAllCommentByBlogId:getAllCommentByBlogId,
     deleteComment:deleteComment,
-    ReplyComment:ReplyComment
+    ReplyComment:ReplyComment,
+    // Check if a user is eligible to review a product
+    canReview: async (req, res) => {
+        try {
+            const { userId, productId } = req.query;
+            if (!userId || !productId) {
+                return res.status(200).json({ errCode: 1, errMessage: 'Missing required parameter !' });
+            }
+            const eligible = await commentService.canUserReviewProduct(+userId, +productId);
+            return res.status(200).json({ errCode: 0, data: { eligible } });
+        } catch (error) {
+            console.log(error);
+            return res.status(200).json({ errCode: -1, errMessage: 'Error from server' });
+        }
+    }
 
 }

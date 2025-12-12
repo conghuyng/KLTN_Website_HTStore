@@ -424,6 +424,15 @@ const getAllReceipt = (data) => {
 const createNewReceiptDetailService = (data) => {
     return axios.post(`/api/create-new-detail-receipt`, data)
 }
+const confirmReceiptService = (data) => {
+    return axios.put(`/api/confirm-receipt`, data)
+}
+const completeReceiptService = (data) => {
+    return axios.put(`/api/complete-receipt`, data)
+}
+const cancelReceiptService = (data) => {
+    return axios.put(`/api/cancel-receipt`, data)
+}
 //======================THIRTY SERVICE==========================//
 const getExchangeRate = () => {
     return axios.get(`https://tygia.com/json.php?ran=0&gold=0&bank=VIETCOM&date=now`)
@@ -449,7 +458,7 @@ export {
     getAllOrdersByUser, paymentOrderService, paymentOrderSuccessService, createNewRoom, sendMessage, loadMessage, listRoomOfUser, listRoomOfAdmin, getAllCategoryBlogService,
     createNewcommentService, getAllcommentByBlogIdService, ReplycommentService, deletecommentService, getFeatureBlog, getNewBlog, getCountCardStatistic, getCountStatusOrder,
     getStatisticByMonth, getStatisticByDay, checkPhonenumberEmail, createNewSupplierService, updateSupplierService, deleteSupplierService, getDetailSupplierByIdService,
-    getAllSupplier, createNewReceiptService, getAllReceipt, getDetailReceiptByIdService, deleteReceiptService, updateReceiptService, createNewReceiptDetailService,
+    getAllSupplier, createNewReceiptService, getAllReceipt, getDetailReceiptByIdService, deleteReceiptService, updateReceiptService, createNewReceiptDetailService, confirmReceiptService, completeReceiptService, cancelReceiptService,
     getStatisticOverturn, getStatisticProfit, getProductShopcartService, getDetailUserByEmail, getProductRecommendService,
     getStatisticStockProduct, getExchangeRate, paymentOrderVnpayService, confirmOrderVnpay, paymentOrderVnpaySuccessService
 }

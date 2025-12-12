@@ -18,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
         receiptId: DataTypes.INTEGER,
         productDetailSizeId:DataTypes.INTEGER,
         quantity:DataTypes.INTEGER,
+        actualQuantity:DataTypes.INTEGER,
         price:DataTypes.BIGINT
     }, {
         sequelize,

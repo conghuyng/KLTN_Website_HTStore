@@ -117,7 +117,7 @@ const AddReceipt = (props) => {
 
     return (
         <div className="container-fluid px-4">
-            <h1 className="mt-4">Quản lý nhập hàng</h1>
+            <h1 className="mt-4">Quản lý phiếu nhập</h1>
 
 
             <div className="card mb-4">

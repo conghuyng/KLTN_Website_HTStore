@@ -41,6 +41,7 @@ import ManageSupplier from "./Supplier/ManageSupplier";
 import AddReceipt from "./Receipt/AddReceipt";
 import ManageReceipt from "./Receipt/ManageReceipt";
 import DetailReceipt from "./Receipt/DetailReceipt";
+import ConfirmReceipt from "./Receipt/ConfirmReceipt";
 import Turnover from "./Statistic/Turnover";
 import Profit from "./Statistic/Profit";
 import StockProduct from "./Statistic/StockProduct";
@@ -167,6 +168,10 @@ function HomePageAdmin() {
                     <Route
                         path="/detail-receipt/:id"
                         element={<DetailReceipt />}
+                    />
+                    <Route
+                        path="/confirm-receipt/:id"
+                        element={<ConfirmReceipt />}
                     />
 
                     {/* Order Management */}

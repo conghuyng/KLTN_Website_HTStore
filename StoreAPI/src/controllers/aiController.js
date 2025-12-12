@@ -36,11 +36,35 @@ let handleChatRequest = async (req, res) => {
             chatHistory
         );
         
+        // 4. Parse product IDs từ AI reply
+        let productIds = [];
+        let textReply = aiReply;
+        
+        // Tìm pattern [PRODUCTS: id1, id2, id3]
+        const productMatch = aiReply.match(/\[PRODUCTS:\s*([\d,\s]+)\]/);
+        if (productMatch) {
+            // Lấy danh sách IDs
+            productIds = productMatch[1].split(',').map(id => parseInt(id.trim())).filter(id => !isNaN(id));
+            // Xóa phần [PRODUCTS: ...] khỏi text reply
+            textReply = aiReply.replace(/\[PRODUCTS:\s*[\d,\s]+\]/g, '').trim();
+        }
+        
+        // 5. Lấy thông tin chi tiết sản phẩm nếu có
+        let products = [];
+        if (productIds.length > 0) {
+            const productService = require('../services/productService');
+            const allProducts = await productService.getProductsForAI();
+            
+            // Filter các sản phẩm được AI gợi ý
+            products = allProducts.filter(p => productIds.includes(p.id));
+        }
+        
         // Trả về câu trả lời cho Frontend
         return res.status(200).json({
             errCode: 0,
             message: 'OK',
-            reply: aiReply
+            reply: textReply,
+            products: products  // Thêm danh sách sản phẩm
         });
 
     } catch (e) {

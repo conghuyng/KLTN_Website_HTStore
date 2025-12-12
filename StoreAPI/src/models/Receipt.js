@@ -16,8 +16,10 @@ module.exports = (sequelize, DataTypes) => {
     };
     Receipt.init({
         userId: DataTypes.INTEGER,
-        supplierId: DataTypes.INTEGER
-       
+        supplierId: DataTypes.INTEGER,
+        statusId: DataTypes.STRING,
+        image: DataTypes.BLOB('long'),
+        confirmedBy: DataTypes.INTEGER
     }, {
         sequelize,
         modelName: 'Receipt',

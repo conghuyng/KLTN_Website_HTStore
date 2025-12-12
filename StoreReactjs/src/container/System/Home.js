@@ -203,15 +203,17 @@ const Home = () => {
             </div>
           </div>
         </div>
-        <div className="col-xl-3 col-md-6">
-          <div className="card bg-danger text-white mb-4">
-            <div className="card-body">THÀNH VIÊN ({CountCard.countUser})</div>
-            <div className="card-footer d-flex align-items-center justify-content-between">
-              <Link className="small text-white stretched-link" to={'/admin/list-user'}>Chi tiết</Link>
-              <div className="small text-white"><i className="fas fa-angle-right" /></div>
+        {JSON.parse(localStorage.getItem('userData'))?.roleId === 'R1' && (
+          <div className="col-xl-3 col-md-6">
+            <div className="card bg-danger text-white mb-4">
+              <div className="card-body">THÀNH VIÊN ({CountCard.countUser})</div>
+              <div className="card-footer d-flex align-items-center justify-content-between">
+                <Link className="small text-white stretched-link" to={'/admin/list-user'}>Chi tiết</Link>
+                <div className="small text-white"><i className="fas fa-angle-right" /></div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
       <div className='row'>
         <div className="col-md-8">
