@@ -5,9 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --exec ./node_modules/.bin/babel-node src/server.js",
-    "build": "",
-    "start": "node src/server.js"
+    "start": "nodemon --exec ./node_modules/.bin/babel-node src/server.js"
   },
   "keywords": [
     "fullstack",
@@ -46,7 +44,6 @@
     "@babel/core": "^7.26.10",
     "@babel/node": "^7.26.0",
     "@babel/preset-env": "^7.26.9",
-    "@babel/cli": "^7.26.4",
     "nodemon": "^3.1.9",
     "sequelize-cli": "^6.6.2"
   }

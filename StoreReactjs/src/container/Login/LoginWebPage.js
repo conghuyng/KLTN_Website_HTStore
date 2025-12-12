@@ -27,6 +27,7 @@ const LoginWebPage = () => {
         isOpen: false,
     });
     const [dataUser, setDataUser] = useState(null);
+    const [isSignup, setIsSignup] = useState(false);
 
     const handleOnChange = (event) => {
         const { name, value } = event.target;
@@ -183,7 +184,7 @@ const LoginWebPage = () => {
                             {/* Form Box */}
                             <div className="col-sm-6 form">
                                 {/* Login Form */}
-                                <div className="login form-peice ">
+                                <div className={`login form-peice ${isSignup ? 'switched' : ''}`}>
                                     <form className="login-form">
                                         <div className="form-group">
                                             <label htmlFor="loginemail">
@@ -221,6 +222,7 @@ const LoginWebPage = () => {
                                             />
                                             <button
                                                 type="button"
+                                                onClick={() => setIsSignup(true)}
                                                 style={{
                                                     cursor: "pointer",
                                                     background: "none",
@@ -260,7 +262,7 @@ const LoginWebPage = () => {
                                 </div>
                                 {/* End Login Form */}
                                 {/* Signup Form */}
-                                <div className="signup form-peice switched">
+                                <div className={`signup form-peice ${!isSignup ? 'switched' : ''}`}>
                                     <form className="signup-form">
                                         <div className="form-group">
                                             <label htmlFor="name">
@@ -342,6 +344,7 @@ const LoginWebPage = () => {
                                             />
                                             <button
                                                 type="button"
+                                                onClick={() => setIsSignup(false)}
                                                 style={{
                                                     cursor: "pointer",
                                                     background: "none",
