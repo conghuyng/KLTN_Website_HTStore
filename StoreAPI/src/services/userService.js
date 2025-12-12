@@ -67,7 +67,7 @@ let handleCreateNewUser = (data) => {
                         phonenumber: data.phonenumber,
                         image: data.avatar,
                         dob: data.dob,
-                        isActiveEmail: 0,
+                        isActiveEmail: data.isSocialLogin ? 1 : 0,
                         statusId: 'S1',
                         usertoken: '',
                     })

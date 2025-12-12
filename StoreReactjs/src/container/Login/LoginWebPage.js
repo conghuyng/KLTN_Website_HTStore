@@ -139,6 +139,7 @@ const LoginWebPage = () => {
                         avatar: value,
                         roleId: "R2",
                         password: inputValues.password,
+                        isSocialLogin: true,
                     });
                     if (res && res.errCode === 0) {
                         toast.success("Tạo tài khoản thành công");
