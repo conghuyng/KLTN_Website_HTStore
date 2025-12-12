@@ -126,7 +126,7 @@ const LoginWebPage = () => {
         if (res.isCheck === true) {
             setInputValues({
                 ...inputValues,
-                ["email"]: re.user.providerData[0].email,
+                email: re.user.providerData[0].email,
             });
             handleLoginSocial(re.user.providerData[0].email);
         } else {
@@ -219,14 +219,20 @@ const LoginWebPage = () => {
                                                 type="submit"
                                                 value="Đăng nhập"
                                             />
-                                            <a
+                                            <button
+                                                type="button"
                                                 style={{
                                                     cursor: "pointer",
+                                                    background: "none",
+                                                    border: "none",
+                                                    padding: 0,
+                                                    color: "inherit",
+                                                    textDecoration: "underline"
                                                 }}
                                                 className="switch"
                                             >
                                                 Tài khoản mới
-                                            </a>
+                                            </button>
                                         </div>
                                         <FacebookLoginButton
                                             text="Đăng nhập với Facebook"
@@ -334,14 +340,20 @@ const LoginWebPage = () => {
                                                 value="Lưu"
                                                 id="submit"
                                             />
-                                            <a
+                                            <button
+                                                type="button"
                                                 style={{
                                                     cursor: "pointer",
+                                                    background: "none",
+                                                    border: "none",
+                                                    padding: 0,
+                                                    color: "inherit",
+                                                    textDecoration: "underline"
                                                 }}
                                                 className="switch"
                                             >
                                                 Tôi có tài khoản
-                                            </a>
+                                            </button>
                                         </div>
                                     </form>
                                 </div>

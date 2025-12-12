@@ -1,19 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import HomeBanner from "../../component/HomeFeature/HomeBanner";
 import MainFeature from "../../component/HomeFeature/MainFeature";
-import ProductFeature from "../../component/HomeFeature/ProductFeature";
 import NewProductFeature from "../../component/HomeFeature/NewProductFeature"
 import HomeBlog from '../../component/HomeFeature/HomeBlog';
-import { getAllBanner, getProductFeatureService, getProductNewService, getNewBlog, getProductRecommendService } from '../../services/userService';
+import { getAllBanner, getProductNewService, getNewBlog } from '../../services/userService';
 import Slider from 'react-slick';
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 function HomePage(props) {
-    const [dataProductFeature, setDataProductFeature] = useState([])
     const [dataNewProductFeature, setNewProductFeature] = useState([])
     const [dataNewBlog, setdataNewBlog] = useState([])
     const [dataBanner, setdataBanner] = useState([])
-    const [dataProductRecommend, setdataProductRecommend] = useState([])
     let settings = {
         dots: false,
         Infinity: false,
@@ -26,15 +23,6 @@ function HomePage(props) {
     }
 
     useEffect(() => {
-        const userData = JSON.parse(localStorage.getItem('userData'));
-        console.log('HomePage - userData:', userData);
-        
-        if (userData) {
-            fetchProductRecommend(userData.id)
-            fetchProductFeature(userData.id)
-        } else {
-            fetchProductFeature(null)
-        }
         fetchBlogFeature()
         fetchDataBrand()
         fetchProductNew()
@@ -50,13 +38,6 @@ function HomePage(props) {
             const currentRefreshTime = localStorage.getItem('refreshProducts');
             if (currentRefreshTime && currentRefreshTime !== lastRefreshTime) {
                 lastRefreshTime = currentRefreshTime;
-                const userData = JSON.parse(localStorage.getItem('userData'));
-                if (userData) {
-                    fetchProductRecommend(userData.id)
-                    fetchProductFeature(userData.id)
-                } else {
-                    fetchProductFeature(null)
-                }
                 fetchProductNew()
             }
         }
@@ -84,26 +65,6 @@ function HomePage(props) {
         let res = await getNewBlog(3)
         if (res && res.errCode === 0) {
             setdataNewBlog(res.data)
-        }
-    }
-    let fetchProductFeature = async (userId) => {
-        let res = await getProductFeatureService({
-            limit: 6,
-            userId: userId
-        })
-        if (res && res.errCode === 0) {
-            setDataProductFeature(res.data)
-        }
-    }
-    let fetchProductRecommend = async (userId) => {
-        let res = await getProductRecommendService({
-            limit: 20,
-            userId: userId
-        })
-        console.log('fetchProductRecommend response:', res);
-        if (res && res.errCode === 0) {
-            console.log('fetchProductRecommend data:', res.data);
-            setdataProductRecommend(res.data)
         }
     }
     let fetchDataBrand = async () => {

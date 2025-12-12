@@ -1,12 +1,9 @@
 import React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
-import { useParams } from "react-router-dom";
 import "react-toastify/dist/ReactToastify.css";
 import { useFetchAllcode } from "../../customize/fetch";
 import CommonUtils from "../../../utils/CommonUtils";
-import localization from "moment/locale/vi";
-import moment from "moment";
 import "./AddProduct.scss";
 import Lightbox from "react-image-lightbox";
 import "react-image-lightbox/style.css";
@@ -54,9 +51,9 @@ const AddProduct = (props) => {
     ) {
         setInputValues({
             ...inputValues,
-            ["brandId"]: dataBrand[0].code,
-            ["categoryId"]: dataCategory[0].code,
-            ["sizeId"]: dataSize[0].code,
+            brandId: dataBrand[0].code,
+            categoryId: dataCategory[0].code,
+            sizeId: dataSize[0].code,
         });
     }
     const handleOnChange = (event) => {
@@ -74,15 +71,15 @@ const AddProduct = (props) => {
             let objectUrl = URL.createObjectURL(file);
             setInputValues({
                 ...inputValues,
-                ["image"]: base64,
-                ["imageReview"]: objectUrl,
+                image: base64,
+                imageReview: objectUrl,
             });
         }
     };
     let openPreviewImage = () => {
         if (!inputValues.imageReview) return;
 
-        setInputValues({ ...inputValues, ["isOpen"]: true });
+        setInputValues({ ...inputValues, isOpen: true });
     };
     let handleSaveProduct = async () => {
         console.log(inputValues.sizeId);
@@ -138,8 +135,8 @@ const AddProduct = (props) => {
     let handleEditorChange = ({ html, text }) => {
         setInputValues({
             ...inputValues,
-            ["contentMarkdown"]: text,
-            ["contentHTML"]: html,
+            contentMarkdown: text,
+            contentHTML: html,
         });
     };
     return (
@@ -414,7 +411,7 @@ const AddProduct = (props) => {
                 <Lightbox
                     mainSrc={inputValues.imageReview}
                     onCloseRequest={() =>
-                        setInputValues({ ...inputValues, ["isOpen"]: false })
+                        setInputValues({ ...inputValues, isOpen: false })
                     }
                 />
             )}
