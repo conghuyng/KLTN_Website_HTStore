@@ -107,26 +107,29 @@ const AddProduct = (props) => {
         });
         if (res && res.errCode === 0) {
             toast.success("Tạo mới sản phẩm thành công!");
+            // Scroll lên đầu trang
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Reset form về trạng thái ban đầu
             setInputValues({
-                ...inputValues,
-                ["name"]: "",
-                ["shortdescription"]: "",
-                ["categoryId"]: "",
-                ["madeby"]: "",
-                ["material"]: "",
-                ["brandId"]: "",
-                ["height"]: "",
-                ["width"]: "",
-                ["sizeId"]: "",
-
-                ["originalPrice"]: "",
-                ["discountPrice"]: "",
-                ["image"]: "",
-                ["imageReview"]: "",
-                ["nameDetail"]: "",
-                ["contentHTML"]: "",
-                ["contenMarkdown"]: "",
-                ["weight"]: "",
+                brandId: dataBrand && dataBrand.length > 0 ? dataBrand[0].code : "",
+                categoryId: dataCategory && dataCategory.length > 0 ? dataCategory[0].code : "",
+                sizeId: dataSize && dataSize.length > 0 ? dataSize[0].code : "",
+                name: "",
+                shortdescription: "",
+                description: "",
+                madeby: "",
+                material: "",
+                width: "",
+                height: "",
+                originalPrice: "",
+                discountPrice: "",
+                image: "",
+                imageReview: "",
+                isOpen: false,
+                nameDetail: "",
+                contentHTML: "",
+                contentMarkdown: "",
+                weight: "",
             });
         } else {
             toast.error(res.errMessage);
