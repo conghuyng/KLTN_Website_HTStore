@@ -165,7 +165,9 @@ function App() {
                         (JSON.parse(localStorage.getItem("userData")).roleId ===
                             "R1" ||
                             JSON.parse(localStorage.getItem("userData"))
-                                .roleId === "R4") ? (
+                                .roleId === "R4" ||
+                            JSON.parse(localStorage.getItem("userData"))
+                                .roleId === "R3") ? (
                             <HomePageAdmin />
                         ) : (
                             <Navigate to="/login" />
