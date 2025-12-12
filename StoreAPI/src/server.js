@@ -2,7 +2,7 @@ import express from "express";
 import bodyParser from "body-parser";
 import viewEngine from "./config/viewEngine.js";
 import initwebRoutes from "./route/web.js";
-import connectDB from "./config/connectDB";
+import connectDB from "./config/connectDB.js";
 import http from "http";
 import { sendMessage } from "./services/messageService";
 import cors from 'cors'; // Bổ sung import thư viện cors
