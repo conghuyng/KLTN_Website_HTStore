@@ -7,7 +7,10 @@ import http from "http";
 import { sendMessage } from "./services/messageService";
 import cors from 'cors'; // Bổ sung import thư viện cors
 require("dotenv").config();
-process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+// Chỉ vô hiệu hóa kiểm tra chứng chỉ TLS trong môi trường development để debug local
+if (process.env.NODE_ENV === 'development') {
+    process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+}
 
 let app = express();
 
