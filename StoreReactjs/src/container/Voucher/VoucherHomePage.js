@@ -21,11 +21,11 @@ function VoucherHomePage(props) {
     const [user, setUser] = useState({})
     function compareDates(d1, d2) {
         var parts = d1.split('/');
-        var d1 = Number(parts[2] + parts[1] + parts[0]);
+        var d1Num = Number(parts[2] + parts[1] + parts[0]);
         parts = d2.split('/');
-        var d2 = Number(parts[2] + parts[1] + parts[0]);
-        if (d1 <= d2) return true
-        if (d1 >= d2) return false
+        var d2Num = Number(parts[2] + parts[1] + parts[0]);
+        if (d1Num <= d2Num) return true
+        if (d1Num >= d2Num) return false
 
     }
 
@@ -96,10 +96,10 @@ function VoucherHomePage(props) {
     return (
         <div className="voucher-container">
             <div className="voucher-banner">
-                <img className="photo-banner" src={bannerPhoto}></img>
-                <img src={voucherTodayPhoto}></img>
-                <img src={voucherAllPhoto}></img>
-                <img src={applyVoucherPhoto}></img>
+                <img className="photo-banner" src={bannerPhoto} alt="banner"></img>
+                <img src={voucherTodayPhoto} alt="voucher today"></img>
+                <img src={voucherAllPhoto} alt="all vouchers"></img>
+                <img src={applyVoucherPhoto} alt="apply voucher"></img>
             </div>
             <div className="voucher-list">
                 {dataVoucher && dataVoucher.length > 0 &&

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useEffect, useState } from 'react';
 import { getAllCodeService } from '../../services/userService';
 
@@ -18,7 +17,7 @@ const useFetchAllcode = (type) => {
             console.log(error)
         }
 
-    }, [])
+    }, [type])
     return { data }
 }
 export {
