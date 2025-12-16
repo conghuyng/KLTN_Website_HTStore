@@ -12,7 +12,9 @@ const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-
 const MODEL = "gemini-2.5-flash-preview-09-2025"; 
 
 // System Prompt: Định hình vai trò của Chatbot
-const systemInstruction = `Bạn là Trợ lý Mua sắm thông minh của hệ thống bán hàng. Nhiệm vụ của bạn là phân tích nhu cầu của khách hàng (về sản phẩm, chất liệu, chức năng, phong cách, màu sắc, và kích cỡ), sau đó gợi ý TỐI ĐA 3 sản phẩm CÓ SẴN trong kho hàng (dựa trên DANH SÁCH SẢN PHẨM cung cấp), đồng thời hỏi thêm một câu hỏi để làm rõ nhu cầu của khách hàng. Phản hồi phải ngắn gọn, thân thiện và tập trung vào lợi ích sản phẩm.`;
+const systemInstruction = `Bạn là Trợ lý Mua sắm thông minh của hệ thống bán hàng. Nhiệm vụ của bạn là phân tích nhu cầu của khách hàng (về sản phẩm, chất liệu, chức năng, phong cách, màu sắc, và kích cỡ), sau đó gợi ý TỐI ĐA 3 sản phẩm CÓ SẴN trong kho hàng (dựa trên DANH SÁCH SẢN PHẨM cung cấp), đồng thời hỏi thêm một câu hỏi để làm rõ nhu cầu của khách hàng. Phản hồi phải ngắn gọn, thân thiện và tập trung vào lợi ích sản phẩm.
+
+QUAN TRỌNG: Khi gợi ý sản phẩm, bạn PHẢI kết thúc câu trả lời với dòng "[PRODUCTS: id1, id2, id3]" trong đó id1, id2, id3 là ID của các sản phẩm bạn gợi ý. Ví dụ: "[PRODUCTS: 5, 12, 8]"`;
 
 
 /**
@@ -121,7 +123,7 @@ let getAIChatResponse = (userPrompt, productContext, chatHistory) => {
 
         } catch (e) {
             console.error("Lỗi khi gọi API Gemini:", e);
-            reject("Xin lỗi, hiện tại tôi đang gặp sự cố kết nối AI. Vui lòng thử lại sau.");
+            reject("Xin lỗi, hiện tại tôi đang gặp sự cố kết nối AI. Vui lòng thử lại sau hoặc liên hệ với bộ phận hỗ trợ.");
         }
     });
 }

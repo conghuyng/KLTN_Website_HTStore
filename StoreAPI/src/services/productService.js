@@ -1340,24 +1340,85 @@ let getProductsForAI = () => {
                 nest: true
             });
 
-            // 2. Lấy thêm giá tiền và mô tả từ bảng ProductDetail
-            // (Vì cấu trúc DB của bạn tách giá ra bảng riêng)
+            // 2. Lấy thêm giá tiền, mô tả và hình ảnh từ bảng ProductDetail
+            // (Vì cấu trúc DB của tách giá ra bảng riêng)
             if (products && products.length > 0) {
                 for (let i = 0; i < products.length; i++) {
                     let productDetail = await db.ProductDetail.findOne({
                         where: { productId: products[i].id },
-                        attributes: ['discountPrice', 'description'],
+                        attributes: ['id', 'discountPrice', 'description'],
                         order: [['discountPrice', 'ASC']], // Lấy giá thấp nhất nếu có nhiều loại
                         raw: true
                     });
 
                     if (productDetail) {
                         products[i].price = productDetail.discountPrice;
+                        products[i].productDetailId = productDetail.id;
                         // Cắt ngắn mô tả để đỡ tốn token của AI
                         products[i].description = productDetail.description ? productDetail.description.substring(0, 100) + "..." : "";
+                        
+                        // Lấy hình ảnh đầu tiên của sản phẩm
+                        let productImage = await db.ProductImage.findOne({
+                            where: { productdetailId: productDetail.id },
+                            attributes: ['image'],
+                            raw: true
+                        });
+                        
+                        if (productImage && productImage.image) {
+                            products[i].image = Buffer.from(productImage.image, 'base64').toString('binary');
+                        } else {
+                            products[i].image = null;
+                        }
+                        
+                        // Lấy size đầu tiên có sẵn để có thể thêm vào giỏ hàng
+                        // Lưu ý: Stock được tính động, không có trong DB
+                        let productSize = await db.ProductDetailSize.findOne({
+                            where: { 
+                                productdetailId: productDetail.id
+                            },
+                            attributes: ['id'],
+                            raw: true
+                        });
+                        
+                        if (productSize) {
+                            // Tính stock động từ ReceiptDetail và OrderDetail
+                            let receiptDetail = await db.ReceiptDetail.findAll({ 
+                                where: { productDetailSizeId: productSize.id },
+                                raw: true 
+                            });
+                            let orderDetail = await db.OrderDetail.findAll({ 
+                                where: { productId: productSize.id },
+                                raw: true 
+                            });
+                            
+                            let quantity = 0;
+                            // Cộng số lượng nhập
+                            for (let receipt of receiptDetail) {
+                                quantity += receipt.quantity;
+                            }
+                            // Trừ số lượng xuất (trừ đơn hàng bị hủy - S7)
+                            for (let order of orderDetail) {
+                                let orderProduct = await db.OrderProduct.findOne({ 
+                                    where: { id: order.orderId },
+                                    raw: true 
+                                });
+                                if (orderProduct && orderProduct.statusId !== 'S7') {
+                                    quantity -= order.quantity;
+                                }
+                            }
+                            
+                            products[i].productDetailSizeId = productSize.id;
+                            products[i].stock = quantity;
+                        } else {
+                            products[i].productDetailSizeId = null;
+                            products[i].stock = 0;
+                        }
                     } else {
                         products[i].price = "Liên hệ";
                         products[i].description = "";
+                        products[i].image = null;
+                        products[i].productDetailSizeId = null;
+                        products[i].stock = 0;
                     }
                 }
             }

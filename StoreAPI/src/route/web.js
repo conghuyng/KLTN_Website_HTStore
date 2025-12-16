@@ -117,6 +117,8 @@ let initwebRoutes = (app) => {
     router.post('/api/reply-review', middlewareControllers.verifyTokenAdmin, commentController.ReplyReview)
     router.get('/api/get-all-review-by-productId', commentController.getAllReviewByProductId)
     router.delete('/api/delete-review', middlewareControllers.verifyTokenUser, commentController.deleteReview)
+    // Eligibility: only show "Write Review" when user purchased and completed order
+    router.get('/api/can-review', middlewareControllers.verifyTokenUser, commentController.canReview)
 
     //=================API SHOPCART==========================//
     router.post('/api/add-shopcart', middlewareControllers.verifyTokenUser, shopCartController.addShopCart)
@@ -137,6 +139,9 @@ let initwebRoutes = (app) => {
     router.post('/api/payment-order-vnpay', middlewareControllers.verifyTokenUser, orderController.paymentOrderVnpay)
     router.post('/api/vnpay_return', orderController.confirmOrderVnpay)
     router.put('/api/update-image-order', orderController.updateImageOrder)
+    router.get('/api/get-all-invoices', orderController.getAllInvoices)
+    router.get('/api/get-invoice-detail', orderController.getInvoiceById)
+    router.post('/api/search-invoices', orderController.searchInvoices)
     //=================API ADDRESS USER ======================//
     router.post('/api/create-new-address-user', middlewareControllers.verifyTokenUser, addressUserController.createNewAddressUser)
     router.get('/api/get-all-address-user', middlewareControllers.verifyTokenUser, addressUserController.getAllAddressUserByUserId)
@@ -177,6 +182,12 @@ let initwebRoutes = (app) => {
     router.put('/api/update-receipt', middlewareControllers.verifyTokenAdmin, receiptController.updateReceipt)
     router.delete('/api/delete-receipt', middlewareControllers.verifyTokenAdmin, receiptController.deleteReceipt)
     router.post('/api/create-new-detail-receipt', middlewareControllers.verifyTokenAdmin, receiptController.createNewReceiptDetail)
+    // Confirm Receipt: R1 (Admin) và R4 (Warehouse Manager) đều có quyền xác nhận
+    router.put('/api/confirm-receipt', middlewareControllers.verifyTokenAdmin, receiptController.confirmReceipt)
+    // Complete Receipt: Đánh dấu hoàn thành sau khi xử lý xong
+    router.put('/api/complete-receipt', middlewareControllers.verifyTokenAdmin, receiptController.completeReceipt)
+    // Cancel Receipt: Hủy nhập hàng (chỉ áp dụng cho S3 - Xác nhận thiếu)
+    router.put('/api/cancel-receipt', middlewareControllers.verifyTokenAdmin, receiptController.cancelReceipt)
     
     // ==========================================================
     // ==> TÍCH HỢP CHATBOT AI VÀO ĐƯỜNG DẪN RIÊNG /api/ai <==

@@ -71,5 +71,7 @@ socketIo.on("connection", (socket) => {
 let port = process.env.PORT || 6969;
 
 server.listen(port, () => {
-    console.log("Backend Nodejs is running on the port : " + port);
+    console.log(`Backend Nodejs is running on the port: ${port}`);
+    console.log(`Environment: ${process.env.NODE_ENV}`);
+    console.log(`CORS Origin: ${process.env.URL_REACT}`);
 });

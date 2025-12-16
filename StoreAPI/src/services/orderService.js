@@ -854,6 +854,372 @@ let updateImageOrder = (data) => {
         }
     });
 };
+
+// Lấy danh sách hóa đơn với bộ lọc trạng thái
+let getAllInvoices = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let statusFilter = data.statusId || 'S6'; // Mặc định là S6 (Đã giao)
+            let objectFilter = {
+                where: { statusId: statusFilter },
+                include: [
+                    { model: db.TypeShip, as: "typeShipData" },
+                    { model: db.Voucher, as: "voucherData" },
+                    { model: db.Allcode, as: "statusOrderData" },
+                ],
+                order: [["createdAt", "DESC"]],
+                raw: true,
+                nest: true,
+            };
+
+            if (data.limit && data.offset) {
+                objectFilter.limit = +data.limit;
+                objectFilter.offset = +data.offset;
+            }
+
+            let res = await db.OrderProduct.findAndCountAll(objectFilter);
+
+            // Lấy thông tin chi tiết cho mỗi hóa đơn
+            for (let i = 0; i < res.rows.length; i++) {
+                let addressUser = await db.AddressUser.findOne({
+                    where: { id: res.rows[i].addressUserId },
+                    raw: true
+                });
+
+                if (addressUser) {
+                    let user = await db.User.findOne({
+                        where: { id: addressUser.userId },
+                        raw: true
+                    });
+
+                    res.rows[i].userData = user;
+                    res.rows[i].addressUser = addressUser;
+                }
+
+                // Lấy danh sách sản phẩm trong đơn hàng
+                let orderDetails = await db.OrderDetail.findAll({
+                    where: { orderId: res.rows[i].id },
+                    raw: true
+                });
+
+                // Lấy thông tin chi tiết sản phẩm cho mỗi item
+                for (let j = 0; j < orderDetails.length; j++) {
+                    let productDetailSize = await db.ProductDetailSize.findOne({
+                        where: { id: orderDetails[j].productId },
+                        raw: true
+                    });
+                    if (productDetailSize) {
+                        let productDetail = await db.ProductDetail.findOne({
+                            where: { id: productDetailSize.productdetailId },
+                            include: [
+                                { model: db.Product, as: "productDetailData" }
+                            ],
+                            raw: true,
+                            nest: true
+                        });
+                        orderDetails[j].productDetail = productDetail;
+                    }
+                    orderDetails[j].productDetailSize = productDetailSize;
+                }
+
+                // Tính tổng tiền hàng
+                let subtotal = 0;
+                orderDetails.forEach(item => {
+                    subtotal += (item.realPrice || 0) * (item.quantity || 0);
+                });
+
+                // Tính discount từ voucher
+                let discount = 0;
+                if (res.rows[i].voucherData && res.rows[i].voucherData.amount) {
+                    discount = res.rows[i].voucherData.amount;
+                }
+
+                // Lấy phí vận chuyển
+                let shippingFee = 0;
+                if (res.rows[i].typeShipData && res.rows[i].typeShipData.price) {
+                    shippingFee = res.rows[i].typeShipData.price;
+                }
+
+                // Tính tổng cộng
+                let totalPrice = subtotal - discount + shippingFee;
+
+                res.rows[i].orderDetails = orderDetails;
+                res.rows[i].subtotal = subtotal;
+                res.rows[i].discount = discount;
+                res.rows[i].shippingFee = shippingFee;
+                res.rows[i].totalPrice = totalPrice;
+            }
+
+            resolve({
+                errCode: 0,
+                data: res.rows,
+                count: res.count,
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
+// Lấy chi tiết một hóa đơn
+let getInvoiceById = (id) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (!id) {
+                resolve({
+                    errCode: 1,
+                    errMessage: "Missing required parameter!",
+                });
+            } else {
+                let invoice = await db.OrderProduct.findOne({
+                    where: { 
+                        id: id,
+                        statusId: 'S6' // Chỉ lấy hóa đơn đã thanh toán
+                    },
+                    include: [
+                        { model: db.TypeShip, as: "typeShipData" },
+                        { model: db.Voucher, as: "voucherData" },
+                        { model: db.Allcode, as: "statusOrderData" },
+                    ],
+                    raw: true,
+                    nest: true
+                });
+
+                if (invoice) {
+                    // Lấy thông tin người dùng và địa chỉ
+                    let addressUser = await db.AddressUser.findOne({
+                        where: { id: invoice.addressUserId },
+                        raw: true
+                    });
+
+                    let user = await db.User.findOne({
+                        where: { id: addressUser.userId },
+                        raw: true
+                    });
+
+                    // Lấy danh sách chi tiết sản phẩm
+                    let orderDetails = await db.OrderDetail.findAll({
+                        where: { orderId: invoice.id },
+                        raw: true
+                    });
+
+                    // Lấy thông tin chi tiết sản phẩm cho mỗi item
+                    for (let i = 0; i < orderDetails.length; i++) {
+                        let productDetailSize = await db.ProductDetailSize.findOne({
+                            where: { id: orderDetails[i].productId },
+                            raw: true
+                        });
+                        if (productDetailSize) {
+                            let productDetail = await db.ProductDetail.findOne({
+                                where: { id: productDetailSize.productdetailId },
+                                include: [
+                                    { model: db.Product, as: "productDetailData" }
+                                ],
+                                raw: true,
+                                nest: true
+                            });
+                            orderDetails[i].productDetail = productDetail;
+                        }
+                        orderDetails[i].productDetailSize = productDetailSize;
+                    }
+
+                    // Tính tổng tiền hàng
+                    let subtotal = 0;
+                    orderDetails.forEach(item => {
+                        subtotal += (item.realPrice || 0) * (item.quantity || 0);
+                    });
+
+                    // Tính discount từ voucher
+                    let discount = 0;
+                    if (invoice.voucherData && invoice.voucherData.amount) {
+                        discount = invoice.voucherData.amount;
+                    }
+
+                    // Lấy phí vận chuyển
+                    let shippingFee = 0;
+                    if (invoice.typeShipData && invoice.typeShipData.price) {
+                        shippingFee = invoice.typeShipData.price;
+                    }
+
+                    // Tính tổng cộng
+                    let totalPrice = subtotal - discount + shippingFee;
+
+                    invoice.userData = user;
+                    invoice.addressUser = addressUser;
+                    invoice.orderDetails = orderDetails;
+                    invoice.subtotal = subtotal;
+                    invoice.discount = discount;
+                    invoice.shippingFee = shippingFee;
+                    invoice.totalPrice = totalPrice;
+
+                    resolve({
+                        errCode: 0,
+                        data: invoice,
+                    });
+                } else {
+                    resolve({
+                        errCode: 1,
+                        errMessage: "Invoice not found or not paid!",
+                    });
+                }
+            }
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
+// Tìm kiếm hóa đơn với các tiêu chí khác nhau
+let searchInvoices = (data) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let { searchType, searchValue, limit, offset, startDate, endDate, statusId } = data;
+            limit = limit || 10;
+            offset = offset || 0;
+
+            let statusFilter = statusId || 'S6'; // Mặc định là S6 (Đã giao)
+            let where = { statusId: statusFilter };
+
+            // Nếu có tìm kiếm theo ngày
+            if (startDate && endDate) {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                end.setHours(23, 59, 59, 999);
+                where.createdAt = {
+                    [db.Sequelize.Op.between]: [start, end]
+                };
+            }
+
+            let res = await db.OrderProduct.findAndCountAll({
+                where: where,
+                offset: parseInt(offset),
+                limit: parseInt(limit),
+                include: [
+                    { model: db.TypeShip, as: "typeShipData" },
+                    { model: db.Voucher, as: "voucherData" },
+                    { model: db.Allcode, as: "statusOrderData" },
+                ],
+                order: [['createdAt', 'DESC']],
+                raw: true,
+                nest: true
+            });
+
+            // Lấy thông tin chi tiết cho mỗi hóa đơn
+            let filteredResults = [];
+            for (let i = 0; i < res.rows.length; i++) {
+                let addressUser = await db.AddressUser.findOne({
+                    where: { id: res.rows[i].addressUserId },
+                    raw: true
+                });
+
+                if (addressUser) {
+                    let user = await db.User.findOne({
+                        where: { id: addressUser.userId },
+                        raw: true
+                    });
+
+                    // Kiểm tra xem user có match với tiêu chí tìm kiếm không
+                    let isMatched = true;
+                    if (searchValue && searchType) {
+                        const searchValueLower = searchValue.toLowerCase();
+                        
+                        switch(searchType) {
+                            case 'name':
+                                isMatched = (user?.lastName || '').toLowerCase().includes(searchValueLower);
+                                break;
+                            case 'email':
+                                isMatched = (user?.email || '').toLowerCase().includes(searchValueLower);
+                                break;
+                            case 'phone':
+                                isMatched = (user?.phonenumber || '').toLowerCase().includes(searchValueLower);
+                                break;
+                            case 'invoiceId':
+                                isMatched = res.rows[i].id.toString().includes(searchValueLower);
+                                break;
+                            default:
+                                // Tìm kiếm tất cả
+                                isMatched = (user?.lastName || '').toLowerCase().includes(searchValueLower) ||
+                                           (user?.email || '').toLowerCase().includes(searchValueLower) ||
+                                           (user?.phonenumber || '').toLowerCase().includes(searchValueLower) ||
+                                           res.rows[i].id.toString().includes(searchValueLower);
+                        }
+                    }
+
+                    if (!isMatched) {
+                        continue;
+                    }
+
+                    res.rows[i].userData = user;
+                    res.rows[i].addressUser = addressUser;
+                }
+
+                // Lấy danh sách sản phẩm trong đơn hàng
+                let orderDetails = await db.OrderDetail.findAll({
+                    where: { orderId: res.rows[i].id },
+                    raw: true
+                });
+
+                // Lấy thông tin chi tiết sản phẩm cho mỗi item
+                for (let j = 0; j < orderDetails.length; j++) {
+                    let productDetailSize = await db.ProductDetailSize.findOne({
+                        where: { id: orderDetails[j].productId },
+                        raw: true
+                    });
+                    if (productDetailSize) {
+                        let productDetail = await db.ProductDetail.findOne({
+                            where: { id: productDetailSize.productdetailId },
+                            include: [
+                                { model: db.Product, as: "productDetailData" }
+                            ],
+                            raw: true,
+                            nest: true
+                        });
+                        orderDetails[j].productDetail = productDetail;
+                    }
+                    orderDetails[j].productDetailSize = productDetailSize;
+                }
+
+                // Tính tổng tiền hàng
+                let subtotal = 0;
+                orderDetails.forEach(item => {
+                    subtotal += (item.realPrice || 0) * (item.quantity || 0);
+                });
+
+                // Tính discount từ voucher
+                let discount = 0;
+                if (res.rows[i].voucherData && res.rows[i].voucherData.amount) {
+                    discount = res.rows[i].voucherData.amount;
+                }
+
+                // Lấy phí vận chuyển
+                let shippingFee = 0;
+                if (res.rows[i].typeShipData && res.rows[i].typeShipData.price) {
+                    shippingFee = res.rows[i].typeShipData.price;
+                }
+
+                // Tính tổng cộng
+                let totalPrice = subtotal - discount + shippingFee;
+
+                res.rows[i].orderDetails = orderDetails;
+                res.rows[i].subtotal = subtotal;
+                res.rows[i].discount = discount;
+                res.rows[i].shippingFee = shippingFee;
+                res.rows[i].totalPrice = totalPrice;
+
+                filteredResults.push(res.rows[i]);
+            }
+
+            resolve({
+                errCode: 0,
+                data: filteredResults,
+                count: filteredResults.length,
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+};
+
 module.exports = {
     createNewOrder: createNewOrder,
     getAllOrders: getAllOrders,
@@ -868,5 +1234,7 @@ module.exports = {
     confirmOrderVnpay: confirmOrderVnpay,
     paymentOrderVnpaySuccess: paymentOrderVnpaySuccess,
     updateImageOrder: updateImageOrder,
+    getAllInvoices: getAllInvoices,
+    getInvoiceById: getInvoiceById,
+    searchInvoices: searchInvoices,
 };
-

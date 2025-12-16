@@ -2,6 +2,11 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addItemCartStart } from '../../action/ShopCartAction';
+import { toast } from 'react-toastify';
+import CommonUtils from '../../utils/CommonUtils';
 
 // **CẤU HÌNH QUAN TRỌNG:**
 // Đảm bảo cổng 8080 khớp với cổng Backend (StoreAPI) của bạn
@@ -9,6 +14,9 @@ import axios from 'axios';
 const CHAT_API_URL = 'http://localhost:8003/api/ai/chat'
 
 function ChatbotWidget() {
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    
     const [isOpen, setIsOpen] = useState(false); // Trạng thái mở/đóng cửa sổ chat
     const [messages, setMessages] = useState([
         // Tin nhắn chào mừng mặc định
@@ -23,6 +31,37 @@ function ChatbotWidget() {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
     useEffect(scrollToBottom, [messages]);
+
+    // Hàm điều hướng đến trang chi tiết sản phẩm
+    const handleViewProduct = (productId) => {
+        navigate(`/detail-product/${productId}`);
+        setIsOpen(false); // Đóng chatbot khi chuyển trang
+    };
+
+    // Hàm thêm sản phẩm vào giỏ hàng
+    const handleAddToCart = (product) => {
+        // Kiểm tra đăng nhập
+        const userData = JSON.parse(localStorage.getItem('userData'));
+        if (!userData || !userData.id) {
+            toast.warning('Bạn cần phải đăng nhập để thêm sản phẩm vào giỏ hàng');
+            return;
+        }
+
+        // Kiểm tra sản phẩm có size không
+        if (!product.productDetailSizeId) {
+            toast.error('Sản phẩm này hiện không có size nào còn hàng');
+            return;
+        }
+
+        // Thêm vào giỏ hàng
+        dispatch(addItemCartStart({
+            userId: userData.id,
+            productdetailsizeId: product.productDetailSizeId,
+            quantity: 1
+        }));
+        
+        toast.success(`Đã thêm "${product.name}" vào giỏ hàng!`);
+    };
 
     const handleSendMessage = async () => {
         if (input.trim() === '' || isLoading) return;
@@ -43,14 +82,19 @@ function ChatbotWidget() {
             });
 
             // 3. Xử lý phản hồi từ Backend
-            // Backend trả về { errCode: 0, reply: "..." }
+            // Backend trả về { errCode: 0, reply: "...", products: [...] }
             const aiReply = response.data.reply; 
+            const products = response.data.products || [];
             
-            // Thêm phản hồi của AI vào lịch sử
-            setMessages((prevMessages) => [...prevMessages, { role: 'model', text: aiReply }]);
+            // Thêm phản hồi của AI vào lịch sử (bao gồm cả products nếu có)
+            setMessages((prevMessages) => [...prevMessages, { 
+                role: 'model', 
+                text: aiReply,
+                products: products
+            }]);
         } catch (error) {
             console.error("Lỗi khi gửi tin nhắn đến API Chat:", error);
-            setMessages((prevMessages) => [...prevMessages, { role: 'model', text: 'Xin lỗi, đã xảy ra lỗi kết nối. Vui lòng kiểm tra server Backend.' }]);
+            setMessages((prevMessages) => [...prevMessages, { role: 'model', text: 'Xin lỗi, đã xảy ra lỗi kết nối. Vui lòng liên hệ với bộ phận hỗ trợ.' }]);
         } finally {
             setIsLoading(false);
         }
@@ -107,20 +151,100 @@ function ChatbotWidget() {
                     
                     <div className="chatbot-messages" style={{ flexGrow: 1, padding: '10px', overflowY: 'auto' }}>
                         {messages.map((msg, index) => (
-                            <div 
-                                key={index} 
-                                className={`message ${msg.role}`}
-                                style={{
-                                    marginBottom: '10px',
-                                    maxWidth: '80%',
-                                    borderRadius: '8px',
-                                    padding: '8px',
-                                    backgroundColor: msg.role === 'user' ? '#DCF8C6' : '#FFFFFF',
-                                    marginLeft: msg.role === 'user' ? 'auto' : '0'
-                                }}
-                            >
-                                {msg.role === 'model' && <strong>AI: </strong>}
-                                {msg.text}
+                            <div key={index}>
+                                <div 
+                                    className={`message ${msg.role}`}
+                                    style={{
+                                        marginBottom: '10px',
+                                        maxWidth: '80%',
+                                        borderRadius: '8px',
+                                        padding: '8px',
+                                        backgroundColor: msg.role === 'user' ? '#DCF8C6' : '#FFFFFF',
+                                        marginLeft: msg.role === 'user' ? 'auto' : '0'
+                                    }}
+                                >
+                                    {msg.role === 'model' && <strong>AI: </strong>}
+                                    {msg.text}
+                                </div>
+                                
+                                {/* Hiển thị sản phẩm nếu có */}
+                                {msg.products && msg.products.length > 0 && (
+                                    <div style={{ marginTop: '10px', marginBottom: '10px' }}>
+                                        {msg.products.map((product, prodIndex) => (
+                                            <div 
+                                                key={prodIndex} 
+                                                style={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    backgroundColor: '#fff',
+                                                    border: '1px solid #e0e0e0',
+                                                    borderRadius: '8px',
+                                                    padding: '8px',
+                                                    marginBottom: '8px',
+                                                    cursor: 'pointer'
+                                                }}
+                                            >
+                                                {/* Hình ảnh sản phẩm */}
+                                                <img 
+                                                    src={product.image || 'https://via.placeholder.com/60'}
+                                                    alt={product.name}
+                                                    onClick={() => handleViewProduct(product.id)}
+                                                    style={{
+                                                        width: '60px',
+                                                        height: '60px',
+                                                        objectFit: 'cover',
+                                                        borderRadius: '5px',
+                                                        marginRight: '10px',
+                                                        cursor: 'pointer'
+                                                    }}
+                                                />
+                                                
+                                                {/* Thông tin sản phẩm */}
+                                                <div 
+                                                    style={{ flexGrow: 1, cursor: 'pointer' }}
+                                                    onClick={() => handleViewProduct(product.id)}
+                                                >
+                                                    <div style={{ 
+                                                        fontWeight: '600', 
+                                                        fontSize: '13px',
+                                                        marginBottom: '4px',
+                                                        color: '#333'
+                                                    }}>
+                                                        {product.name}
+                                                    </div>
+                                                    <div style={{ 
+                                                        color: '#e53935', 
+                                                        fontWeight: 'bold',
+                                                        fontSize: '14px'
+                                                    }}>
+                                                        {CommonUtils.formatter.format(product.price)}
+                                                    </div>
+                                                </div>
+                                                
+                                                {/* Nút thêm giỏ hàng */}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleAddToCart(product);
+                                                    }}
+                                                    style={{
+                                                        backgroundColor: product.stock > 0 ? '#1E90FF' : '#ccc',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '5px',
+                                                        padding: '6px 12px',
+                                                        fontSize: '12px',
+                                                        cursor: product.stock > 0 ? 'pointer' : 'not-allowed',
+                                                        whiteSpace: 'nowrap'
+                                                    }}
+                                                    disabled={product.stock === 0}
+                                                >
+                                                    {product.stock > 0 ? '+ Thêm' : 'Hết hàng'}
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         ))}
                         {isLoading && <div className="message model">AI đang gõ...</div>}

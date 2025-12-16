@@ -1,4 +1,5 @@
 import db from "../models/index";
+const { Op } = require("sequelize");
 require('dotenv').config();
 
 let createNewReview = (data) => {
@@ -10,6 +11,15 @@ let createNewReview = (data) => {
                     errMessage: 'Missing required parameter !'
                 })
             } else {
+                // Kiểm tra điều kiện: user phải có đơn hàng đã giao (S6) chứa sản phẩm này
+                const eligible = await canUserReviewProduct(data.userId, data.productId);
+                if (!eligible) {
+                    resolve({
+                        errCode: 2,
+                        errMessage: 'Bạn cần đặt hàng và nhận hàng thành công trước khi đánh giá sản phẩm này.'
+                    });
+                    return;
+                }
                 await db.Comment.create({
                     content: data.content,
                     productId: data.productId,
@@ -26,6 +36,89 @@ let createNewReview = (data) => {
             reject(error)
         }
     })
+}
+// Kiểm tra xem user có thể đánh giá sản phẩm không:
+// Điều kiện: Phải có ít nhất 1 đơn hàng ĐÃ GIAO HÀNG (statusId = 'S6') chứa sản phẩm này
+// S3 = Chờ xác nhận | S4 = Đã xác nhận | S5 = Đang giao | S6 = Đã giao | S7 = Đã hủy
+let canUserReviewProduct = async (userId, productId) => {
+    try {
+        if (!userId || !productId) return false;
+        
+        // Chuyển đổi sang số để đảm bảo so sánh chính xác
+        const userIdNum = parseInt(userId);
+        const productIdNum = parseInt(productId);
+
+        // Quyền R1 (Admin) và R4 (Warehouse) được phép đánh giá mà không cần đơn S6
+        const user = await db.User.findOne({ where: { id: userIdNum }, raw: true });
+        if (user && (user.roleId === 'R1' || user.roleId === 'R4')) {
+            return true;
+        }
+        
+        // Tìm tất cả địa chỉ của user
+        const addresses = await db.AddressUser.findAll({ where: { userId: userIdNum }, raw: true });
+        if (!addresses || addresses.length === 0) {
+            console.log('No addresses found for user:', userIdNum);
+            return false;
+        }
+        
+        const addressIds = addresses.map(a => a.id);
+        
+        // Tìm các đơn hàng ĐÃ GIAO HÀNG (S6) của user
+        const completedOrders = await db.OrderProduct.findAll({
+            where: { addressUserId: { [Op.in]: addressIds }, statusId: 'S6' },
+            raw: true
+        });
+        
+        if (!completedOrders || completedOrders.length === 0) {
+            console.log('No completed orders (S6) found for addresses:', addressIds);
+            return false;
+        }
+        
+        const orderIds = completedOrders.map(o => o.id);
+        console.log('Found completed orders:', orderIds);
+        
+        // Lấy tất cả chi tiết đơn hàng
+        const orderDetails = await db.OrderDetail.findAll({ 
+            where: { orderId: { [Op.in]: orderIds } }, 
+            raw: true 
+        });
+        
+        if (!orderDetails || orderDetails.length === 0) {
+            console.log('No order details found for orders:', orderIds);
+            return false;
+        }
+        
+        // Kiểm tra từng chi tiết để tìm sản phẩm
+        for (let i = 0; i < orderDetails.length; i++) {
+            // OrderDetail.productId là ProductDetailSize.id
+            const pds = await db.ProductDetailSize.findOne({ 
+                where: { id: orderDetails[i].productId }, 
+                raw: true 
+            });
+            
+            if (!pds) continue;
+            
+            // Lấy ProductDetail từ ProductDetailSize
+            const pd = await db.ProductDetail.findOne({ 
+                where: { id: pds.productdetailId }, 
+                raw: true 
+            });
+            
+            if (!pd) continue;
+            
+            // So sánh productId (chuyển sang số)
+            if (parseInt(pd.productId) === productIdNum) {
+                console.log('Product match found! User can review product:', productIdNum);
+                return true;
+            }
+        }
+        
+        console.log('Product not found in any completed orders for user:', userIdNum, 'productId:', productIdNum);
+        return false;
+    } catch (error) {
+        console.error('Error in canUserReviewProduct:', error);
+        return false;
+    }
 }
 let getAllReviewByProductId = (id) => {
     return new Promise(async (resolve, reject) => {
@@ -56,7 +149,10 @@ let getAllReviewByProductId = (id) => {
                                     exclude: ['password']
                                 },
                             })
-                        res[i].user.image = Buffer.from(res[i].user.image, 'base64').toString('binary')
+                        // Người dùng có thể chưa có ảnh -> cần kiểm tra null
+                        res[i].user.image = res[i].user?.image
+                            ? Buffer.from(res[i].user.image, 'base64').toString('binary')
+                            : ''
                     }
                 }
 
@@ -178,7 +274,9 @@ let getAllCommentByBlogId = (id) => {
                                     exclude: ['password']
                                 },
                             })
-                        res[i].user.image = Buffer.from(res[i].user.image, 'base64').toString('binary')
+                        res[i].user.image = res[i].user?.image
+                            ? Buffer.from(res[i].user.image, 'base64').toString('binary')
+                            : ''
                     }
                 }
 
@@ -253,5 +351,6 @@ module.exports = {
     createNewComment:createNewComment,
     getAllCommentByBlogId:getAllCommentByBlogId,
     deleteComment:deleteComment,
-    ReplyComment:ReplyComment
+    ReplyComment:ReplyComment,
+    canUserReviewProduct: canUserReviewProduct
 }

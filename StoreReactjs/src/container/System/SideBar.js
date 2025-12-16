@@ -133,54 +133,83 @@ const SideBar = () => {
                             </>
                         }
 
-                        <a className="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseSupplier" aria-expanded="false" aria-controls="collapseLayouts">
-                            <div className="sb-nav-link-icon"><i class="fa-solid fa-person-military-pointing"></i></div>
-                            Quản lý NCC
-                            <div className="sb-sidenav-collapse-arrow"><i className="fas fa-angle-down" /></div>
-                        </a>
-                        <div className="collapse" id="collapseSupplier" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
-                            <nav className="sb-sidenav-menu-nested nav">
-                                <Link to={'/admin/list-supplier'} className="nav-link" >Danh sách NCC</Link>
-                                <Link to={'/admin/add-supplier'} className="nav-link" >Thêm nhà cung cấp</Link>
-                            </nav>
-                        </div>
-                        <a className="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseReceipt" aria-expanded="false" aria-controls="collapseLayouts">
-                            <div className="sb-nav-link-icon"><i class="fa-solid fa-file-import"></i></div>
-                            Quản lý nhập hàng
-                            <div className="sb-sidenav-collapse-arrow"><i className="fas fa-angle-down" /></div>
-                        </a>
-                        <div className="collapse" id="collapseReceipt" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
-                            <nav className="sb-sidenav-menu-nested nav">
-                                <Link to={'/admin/list-receipt'} className="nav-link" >Danh sách nhập hàng</Link>
-                                <Link to={'/admin/add-receipt'} className="nav-link" >Thêm nhập hàng</Link>
-                            </nav>
-                        </div>
-                        <a className="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseOrder" aria-expanded="false" aria-controls="collapseLayouts">
-                            <div className="sb-nav-link-icon"><i className="fas fa-cart-plus"></i></div>
-                            Quản lý đơn hàng
-                            <div className="sb-sidenav-collapse-arrow"><i className="fas fa-angle-down" /></div>
-                        </a>
-                        <div className="collapse" id="collapseOrder" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
-                            <nav className="sb-sidenav-menu-nested nav">
-                                <Link to={'/admin/list-order'} className="nav-link" >Danh sách đơn hàng</Link>
+                        {user && user.roleId === "R1" &&
+                            <>
+                                <a className="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseSupplier" aria-expanded="false" aria-controls="collapseLayouts">
+                                    <div className="sb-nav-link-icon"><i className="fa-solid fa-person-military-pointing"></i></div>
+                                    Quản lý NCC
+                                    <div className="sb-sidenav-collapse-arrow"><i className="fas fa-angle-down" /></div>
+                                </a>
+                                <div className="collapse" id="collapseSupplier" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                                    <nav className="sb-sidenav-menu-nested nav">
+                                        <Link to={'/admin/list-supplier'} className="nav-link" >Danh sách NCC</Link>
+                                        <Link to={'/admin/add-supplier'} className="nav-link" >Thêm nhà cung cấp</Link>
+                                    </nav>
+                                </div>
+                            </>
+                        }
+                        {(user && user.roleId === "R1") || (user && user.roleId === "R4") ?
+                            <>
+                                <a className="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseReceipt" aria-expanded="false" aria-controls="collapseLayouts">
+                                    <div className="sb-nav-link-icon"><i className="fa-solid fa-file-import"></i></div>
+                                    Quản lý phiếu nhập
+                                    <div className="sb-sidenav-collapse-arrow"><i className="fas fa-angle-down" /></div>
+                                </a>
+                                <div className="collapse" id="collapseReceipt" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                                    <nav className="sb-sidenav-menu-nested nav">
+                                        <Link to={'/admin/list-receipt'} className="nav-link" >Danh sách nhập hàng</Link>
+                                        {user && user.roleId === "R1" &&
+                                            <Link to={'/admin/add-receipt'} className="nav-link" >Thêm nhập hàng</Link>
+                                        }
+                                    </nav>
+                                </div>
+                                <a className="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseOrder" aria-expanded="false" aria-controls="collapseLayouts">
+                                    <div className="sb-nav-link-icon"><i className="fas fa-cart-plus"></i></div>
+                                    Quản lý đơn hàng
+                                    <div className="sb-sidenav-collapse-arrow"><i className="fas fa-angle-down" /></div>
+                                </a>
+                                <div className="collapse" id="collapseOrder" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                                    <nav className="sb-sidenav-menu-nested nav">
+                                        <Link to={'/admin/list-order'} className="nav-link" >Danh sách đơn hàng</Link>
 
-                            </nav>
-                        </div>
-                        <a className="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseOrder" aria-expanded="false" aria-controls="collapseLayouts">
-                            <div className="sb-nav-link-icon"><i class="fa-brands fa-facebook-messenger"></i></div>
-                            Quản lý tin nhắn
-                            <div className="sb-sidenav-collapse-arrow"><i className="fas fa-angle-down" /></div>
-                        </a>
-                        <div className="collapse" id="collapseOrder" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
-                            <nav className="sb-sidenav-menu-nested nav">
-                                <Link to={'/admin/chat'} className="nav-link" >Messenger</Link>
+                                    </nav>
+                                </div>
+                                <a className="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseMessage" aria-expanded="false" aria-controls="collapseLayouts">
+                                    <div className="sb-nav-link-icon"><i className="fa-brands fa-facebook-messenger"></i></div>
+                                    Quản lý tin nhắn
+                                    <div className="sb-sidenav-collapse-arrow"><i className="fas fa-angle-down" /></div>
+                                </a>
+                                <div className="collapse" id="collapseMessage" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                                    <nav className="sb-sidenav-menu-nested nav">
+                                        <Link to={'/admin/chat'} className="nav-link" >Messenger</Link>
 
-                            </nav>
-                        </div>
+                                    </nav>
+                                </div>
+                            </>
+                            : null
+                        }
+
+                        {(user && user.roleId === "R1") || (user && user.roleId === "R4") ?
+                            <>
+                                <a className="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseInvoice" aria-expanded="false" aria-controls="collapseLayouts">
+                                    <div className="sb-nav-link-icon"><i className="fas fa-receipt"></i></div>
+                                    Quản lý Hóa đơn
+                                    <div className="sb-sidenav-collapse-arrow"><i className="fas fa-angle-down" /></div>
+                                </a>
+                                <div className="collapse" id="collapseInvoice" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                                    <nav className="sb-sidenav-menu-nested nav">
+                                        <Link to={'/admin/list-invoice'} className="nav-link" >Danh sách Hóa đơn</Link>
+
+                                    </nav>
+                                </div>
+                            </>
+                            : null
+                        }
+
                         {user && user.roleId === "R1" &&
                             <>
                                 <a className="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseStatistic" aria-expanded="false" aria-controls="collapseLayouts">
-                                    <div className="sb-nav-link-icon"><i class="fa-solid fa-magnifying-glass-chart"></i></div>
+                                    <div className="sb-nav-link-icon"><i className="fa-solid fa-magnifying-glass-chart"></i></div>
                                     Thống kê
                                     <div className="sb-sidenav-collapse-arrow"><i className="fas fa-angle-down" /></div>
                                 </a>

@@ -41,9 +41,12 @@ import ManageSupplier from "./Supplier/ManageSupplier";
 import AddReceipt from "./Receipt/AddReceipt";
 import ManageReceipt from "./Receipt/ManageReceipt";
 import DetailReceipt from "./Receipt/DetailReceipt";
+import ConfirmReceipt from "./Receipt/ConfirmReceipt";
 import Turnover from "./Statistic/Turnover";
 import Profit from "./Statistic/Profit";
 import StockProduct from "./Statistic/StockProduct";
+import InvoiceList from "../Invoice/InvoiceList";
+import InvoiceDetail from "../Invoice/InvoiceDetail";
 
 // Common Layout for Admin
 const AdminLayout = ({ children }) => (
@@ -168,10 +171,18 @@ function HomePageAdmin() {
                         path="/detail-receipt/:id"
                         element={<DetailReceipt />}
                     />
+                    <Route
+                        path="/confirm-receipt/:id"
+                        element={<ConfirmReceipt />}
+                    />
 
                     {/* Order Management */}
                     <Route path="/list-order" element={<ManageOrder />} />
                     <Route path="/order-detail/:id" element={<DetailOrder />} />
+
+                    {/* Invoice Management */}
+                    <Route path="/list-invoice" element={<InvoiceList />} />
+                    <Route path="/invoice-detail/:invoiceId" element={<InvoiceDetail />} />
 
                     {/* Statistics */}
                     <Route path="/turnover" element={<Turnover />} />

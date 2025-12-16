@@ -3,7 +3,6 @@ import { toast } from "react-toastify";
 import Otp from './Otp';
 import "./LoginWebPage.css";
 import {
-    FacebookLoginButton,
     GoogleLoginButton,
 } from "react-social-login-buttons";
 import {
@@ -15,7 +14,6 @@ import {
 import { authentication } from "../../utils/firebase";
 import {
     signInWithPopup,
-    FacebookAuthProvider,
     GoogleAuthProvider,
 } from "firebase/auth";
 const LoginWebPage = () => {
@@ -107,16 +105,6 @@ const LoginWebPage = () => {
                 resolve(base64data);
             };
         });
-    };
-    let signInwithFacebook = () => {
-        const provider = new FacebookAuthProvider();
-        signInWithPopup(authentication, provider)
-            .then((re) => {
-                LoginWithSocial(re);
-            })
-            .catch((err) => {
-                console.log(err.message);
-            });
     };
     let LoginWithSocial = async (re) => {
         let res = await checkPhonenumberEmail({
@@ -236,18 +224,6 @@ const LoginWebPage = () => {
                                                 Tài khoản mới
                                             </button>
                                         </div>
-                                        <FacebookLoginButton
-                                            text="Đăng nhập với Facebook"
-                                            iconSize="25px"
-                                            style={{
-                                                width: "300px",
-                                                height: "40px",
-                                                fontSize: "16px",
-                                                marginTop: "40px",
-                                                marginBottom: "10px",
-                                            }}
-                                            onClick={() => signInwithFacebook()}
-                                        />
                                         <GoogleLoginButton
                                             text="Đăng nhập với Google"
                                             iconSize="25px"

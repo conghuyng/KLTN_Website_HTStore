@@ -72,11 +72,50 @@ let createNewReceiptDetail = async (req, res) => {
         })
     }
 }
+let confirmReceipt = async (req, res) => {
+    try {
+        let data = await receiptService.confirmReceipt(req.body);
+        return res.status(200).json(data);
+    } catch (error) {
+        console.log(error)
+        return res.status(200).json({
+            errCode: -1,
+            errMessage: 'Error from server'
+        })
+    }
+}
+let completeReceipt = async (req, res) => {
+    try {
+        let data = await receiptService.completeReceipt(req.body);
+        return res.status(200).json(data);
+    } catch (error) {
+        console.log(error)
+        return res.status(200).json({
+            errCode: -1,
+            errMessage: 'Error from server'
+        })
+    }
+}
+let cancelReceipt = async (req, res) => {
+    try {
+        let data = await receiptService.cancelReceipt(req.body);
+        return res.status(200).json(data);
+    } catch (error) {
+        console.log(error)
+        return res.status(200).json({
+            errCode: -1,
+            errMessage: 'Error from server'
+        })
+    }
+}
 module.exports = {
     createNewReceipt:createNewReceipt,
     getDetailReceiptById:getDetailReceiptById,
     getAllReceipt:getAllReceipt,
     updateReceipt:updateReceipt,
     deleteReceipt:deleteReceipt,
-    createNewReceiptDetail:createNewReceiptDetail
+    createNewReceiptDetail:createNewReceiptDetail,
+    confirmReceipt:confirmReceipt,
+    completeReceipt:completeReceipt,
+    cancelReceipt:cancelReceipt
 }

@@ -318,6 +318,21 @@ const paymentOrderVnpayService = (data) => {
 const confirmOrderVnpay = (data) => {
     return axios.post(`/api/vnpay_return`, data)
 }
+
+//===============INVOICE/HÓA ĐƠN========================//
+const getAllInvoicesService = (data) => {
+    const statusId = data.statusId || 'S6';
+    return axios.get(`/api/get-all-invoices?limit=${data.limit}&offset=${data.offset}&statusId=${statusId}`)
+}
+
+const getInvoiceDetailService = (id) => {
+    return axios.get(`/api/get-invoice-detail?id=${id}`)
+}
+
+const searchInvoicesService = (data) => {
+    return axios.post(`/api/search-invoices`, data)
+}
+
 //=========================ADDRESS USER==============//
 const createNewAddressUserrService = (data) => {
     return axios.post(`/api/create-new-address-user`, data)
@@ -424,6 +439,15 @@ const getAllReceipt = (data) => {
 const createNewReceiptDetailService = (data) => {
     return axios.post(`/api/create-new-detail-receipt`, data)
 }
+const confirmReceiptService = (data) => {
+    return axios.put(`/api/confirm-receipt`, data)
+}
+const completeReceiptService = (data) => {
+    return axios.put(`/api/complete-receipt`, data)
+}
+const cancelReceiptService = (data) => {
+    return axios.put(`/api/cancel-receipt`, data)
+}
 //======================THIRTY SERVICE==========================//
 const getExchangeRate = () => {
     return axios.get(`https://tygia.com/json.php?ran=0&gold=0&bank=VIETCOM&date=now`)
@@ -449,7 +473,8 @@ export {
     getAllOrdersByUser, paymentOrderService, paymentOrderSuccessService, createNewRoom, sendMessage, loadMessage, listRoomOfUser, listRoomOfAdmin, getAllCategoryBlogService,
     createNewcommentService, getAllcommentByBlogIdService, ReplycommentService, deletecommentService, getFeatureBlog, getNewBlog, getCountCardStatistic, getCountStatusOrder,
     getStatisticByMonth, getStatisticByDay, checkPhonenumberEmail, createNewSupplierService, updateSupplierService, deleteSupplierService, getDetailSupplierByIdService,
-    getAllSupplier, createNewReceiptService, getAllReceipt, getDetailReceiptByIdService, deleteReceiptService, updateReceiptService, createNewReceiptDetailService,
+    getAllSupplier, createNewReceiptService, getAllReceipt, getDetailReceiptByIdService, deleteReceiptService, updateReceiptService, createNewReceiptDetailService, confirmReceiptService, completeReceiptService, cancelReceiptService,
     getStatisticOverturn, getStatisticProfit, getProductShopcartService, getDetailUserByEmail, getProductRecommendService,
-    getStatisticStockProduct, getExchangeRate, paymentOrderVnpayService, confirmOrderVnpay, paymentOrderVnpaySuccessService
+    getStatisticStockProduct, getExchangeRate, paymentOrderVnpayService, confirmOrderVnpay, paymentOrderVnpaySuccessService,
+    getAllInvoicesService, getInvoiceDetailService, searchInvoicesService
 }

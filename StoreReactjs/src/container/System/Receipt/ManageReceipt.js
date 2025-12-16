@@ -1,6 +1,6 @@
 import React from 'react';
 import { useEffect, useState } from 'react';
-import { deleteReceiptService, getAllReceipt } from '../../../services/userService';
+import { deleteReceiptService, getAllReceipt, cancelReceiptService } from '../../../services/userService';
 import moment from 'moment';
 import { toast } from 'react-toastify';
 import { PAGINATION } from '../../../utils/constant';
@@ -70,9 +70,22 @@ const ManageReceipt = () => {
         }
        
     }
+    
+    let handleCancelReceipt = async (receiptId) => {
+        if (window.confirm('Bạn có chắc muốn hủy nhập hàng này? Số lượng đã nhập sẽ bị trừ khỏi kho.')) {
+            let res = await cancelReceiptService({ id: receiptId });
+            if (res && res.errCode === 0) {
+                toast.success(res.errMessage);
+                fetchData();
+            } else {
+                toast.error(res.errMessage || 'Hủy nhập hàng thất bại!');
+            }
+        }
+    }
+    
     return (
         <div className="container-fluid px-4">
-            <h1 className="mt-4">Quản lý nhập hàng</h1>
+            <h1 className="mt-4">Quản lý phiếu nhập</h1>
 
 
             <div className="card mb-4">
@@ -97,6 +110,7 @@ const ManageReceipt = () => {
                                     <th>Tên nhà cung cấp</th>
                                     <th>Số điện thoại</th>
                                     <th>Tên nhân viên</th>
+                                    <th>Trạng thái</th>
                                     <th>Thao tác</th>
                                 </tr>
                             </thead>
@@ -111,11 +125,39 @@ const ManageReceipt = () => {
                                                 <td>{item.supplierData.name}</td>
                                                 <td>{item.supplierData.phonenumber}</td>
                                                 <td>{item.userData.firstName +" "+item.userData.lastName}</td>
-                                              
                                                 <td>
-                                                    <Link to={`/admin/detail-receipt/${item.id}`}>view</Link>
+                                                    {item.statusId === 'S1' && <span className="badge bg-warning text-dark">Chờ xác nhận</span>}
+                                                    {item.statusId === 'S2' && <span className="badge bg-success">Xác nhận đủ</span>}
+                                                    {item.statusId === 'S3' && <span className="badge bg-danger">Xác nhận thiếu</span>}
+                                                    {item.statusId === 'S4' && <span className="badge bg-primary">Hoàn thành</span>}
+                                                    {item.statusId === 'S5' && <span className="badge bg-secondary">Đã hủy</span>}
+                                                    {!item.statusId && <span className="badge bg-secondary">Chưa xác định</span>}
+                                                </td>
+                                                <td>
+                                                    <Link to={`/admin/detail-receipt/${item.id}`}>Chi tiết</Link>
                                                     &nbsp; &nbsp;
-                                                   
+                                                    {item.statusId === 'S1' && (
+                                                        <>
+                                                            <Link to={`/admin/confirm-receipt/${item.id}`} className="text-success">
+                                                                <i className="fas fa-check"></i> Xác nhận
+                                                            </Link>
+                                                        </>
+                                                    )}
+                                                    {item.statusId === 'S3' && (
+                                                        <>
+                                                            &nbsp; &nbsp;
+                                                            <a 
+                                                                href="#" 
+                                                                onClick={(e) => {
+                                                                    e.preventDefault();
+                                                                    handleCancelReceipt(item.id);
+                                                                }} 
+                                                                className="text-danger"
+                                                            >
+                                                                <i className="fas fa-times"></i> Hủy nhập hàng
+                                                            </a>
+                                                        </>
+                                                    )}
                                                 </td>
                                             </tr>
                                         )

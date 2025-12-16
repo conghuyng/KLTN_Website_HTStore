@@ -156,6 +156,48 @@ let updateImageOrder = async (req, res) => {
         })
     }
 }
+
+// Lấy danh sách hóa đơn
+let getAllInvoices = async (req, res) => {
+    try {
+        let data = await orderService.getAllInvoices(req.query);
+        return res.status(200).json(data);
+    } catch (error) {
+        console.log(error)
+        return res.status(200).json({
+            errCode: -1,
+            errMessage: 'Error from server'
+        })
+    }
+}
+
+// Lấy chi tiết một hóa đơn
+let getInvoiceById = async (req, res) => {
+    try {
+        let data = await orderService.getInvoiceById(req.query.id);
+        return res.status(200).json(data);
+    } catch (error) {
+        console.log(error)
+        return res.status(200).json({
+            errCode: -1,
+            errMessage: 'Error from server'
+        })
+    }
+}
+
+let searchInvoices = async (req, res) => {
+    try {
+        let data = await orderService.searchInvoices(req.body);
+        return res.status(200).json(data);
+    } catch (error) {
+        console.log(error)
+        return res.status(200).json({
+            errCode: -1,
+            errMessage: 'Error from server'
+        })
+    }
+}
+
 module.exports = {
     createNewOrder: createNewOrder,
     getAllOrders: getAllOrders,
@@ -169,5 +211,8 @@ module.exports = {
     paymentOrderVnpay: paymentOrderVnpay,
     confirmOrderVnpay: confirmOrderVnpay,
     paymentOrderVnpaySuccess: paymentOrderVnpaySuccess,
-    updateImageOrder: updateImageOrder
+    updateImageOrder: updateImageOrder,
+    getAllInvoices: getAllInvoices,
+    getInvoiceById: getInvoiceById,
+    searchInvoices: searchInvoices
 }
