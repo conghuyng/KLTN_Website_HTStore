@@ -1,0 +1,17 @@
+{
+  "builds": [
+    {
+      "src": "StoreReactjs/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "StoreReactjs/build"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/StoreReactjs/build/index.html"
+    }
+  ]
+}
