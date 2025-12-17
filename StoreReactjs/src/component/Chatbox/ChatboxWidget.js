@@ -77,14 +77,22 @@ function ChatbotWidget() {
 
         // 2. Gửi request đến Backend (StoreAPI)
         try {
-            const response = await axios.post('https://api-n7s2.onrender.com/api/ai/chat', { 
-                history: newHistory, // Gửi toàn bộ lịch sử để AI giữ bối cảnh
+            const response = await fetch('https://api-n7s2.onrender.com/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ history: newHistory })
             });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
 
             // 3. Xử lý phản hồi từ Backend
             // Backend trả về { errCode: 0, reply: "...", products: [...] }
-            const aiReply = response.data.reply; 
-            const products = response.data.products || [];
+            const aiReply = data.reply; 
+            const products = data.products || [];
             
             // Thêm phản hồi của AI vào lịch sử (bao gồm cả products nếu có)
             setMessages((prevMessages) => [...prevMessages, { 
