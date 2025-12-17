@@ -3,7 +3,8 @@ import _ from "lodash";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 const instance = axios.create({
-    baseURL: "http://192.168.1.185:8003",
+    // baseURL: "http://192.168.1.185:8003",
+    baseURL: "https://api-n7s2.onrender.com",
     //  withCredentials: true
 });
 
