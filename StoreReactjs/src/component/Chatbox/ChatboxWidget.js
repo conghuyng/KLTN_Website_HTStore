@@ -10,8 +10,8 @@ import CommonUtils from '../../utils/CommonUtils';
 
 // **CẤU HÌNH QUAN TRỌNG:**
 // Đảm bảo cổng 8080 khớp với cổng Backend (StoreAPI) của bạn
-// URL này gọi đến route /api/ai/chat bạn vừa thiết lập trong web.js
-const CHAT_API_URL = 'http://localhost:8003/api/ai/chat'
+// URL gọi tới backend (Render) đã cấu hình /api/ai/chat
+const CHAT_API_URL = `${process.env.REACT_APP_BACKEND_URL}/api/ai/chat`;
 
 function ChatbotWidget() {
     const navigate = useNavigate();
