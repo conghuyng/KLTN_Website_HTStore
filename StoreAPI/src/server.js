@@ -14,8 +14,8 @@ if (process.env.NODE_ENV === 'development') {
 
 let app = express();
 
-// Lấy URL của React Frontend từ .env (đã xác nhận là http://localhost:5000)
-const URL_REACT = process.env.URL_REACT || 'http://localhost:5000';
+// Lấy URL của React Frontend từ .env (Render/Vercel)
+const URL_REACT = process.env.URL_REACT || 'https://nhom040.vercel.app';
 
 // ===============================================
 // BƯỚC 1: CẤU HÌNH CORS VỚI THƯ VIỆN `CORS` (KHẮC PHỤC LỖI PREFLIGHT)

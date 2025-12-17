@@ -479,8 +479,9 @@ let paymentOrder = (data) => {
                     payment_method: "paypal",
                 },
                 redirect_urls: {
-                    return_url: `http://localhost:5000/payment/success`,
-                    cancel_url: "http://localhost:5000/payment/cancel",
+                    // Sử dụng URL front-end từ biến môi trường
+                    return_url: `${process.env.URL_REACT}/payment/success`,
+                    cancel_url: `${process.env.URL_REACT}/payment/cancel`,
                 },
                 transactions: [
                     {
