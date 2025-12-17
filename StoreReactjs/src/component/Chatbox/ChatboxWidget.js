@@ -11,7 +11,7 @@ import CommonUtils from '../../utils/CommonUtils';
 // **CẤU HÌNH QUAN TRỌNG:**
 // Đảm bảo cổng 8080 khớp với cổng Backend (StoreAPI) của bạn
 // URL gọi tới backend (Render) đã cấu hình /api/ai/chat
-const CHAT_API_URL = `${process.env.REACT_APP_BACKEND_URL}/api/ai/chat`;
+const CHAT_API_URL = `${process.env.REACT_APP_BACKEND_URL || 'https://api-n7s2.onrender.com'}/api/ai/chat`;
 
 function ChatbotWidget() {
     const navigate = useNavigate();
