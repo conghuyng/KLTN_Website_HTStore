@@ -77,7 +77,7 @@ function ChatbotWidget() {
 
         // 2. Gửi request đến Backend (StoreAPI)
         try {
-            const response = await axios.post(CHAT_API_URL, { 
+            const response = await axios.post('https://api-n7s2.onrender.com/api/ai/chat', { 
                 history: newHistory, // Gửi toàn bộ lịch sử để AI giữ bối cảnh
             });
 
