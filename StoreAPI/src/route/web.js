@@ -24,6 +24,8 @@ let initwebRoutes = (app) => {
     router.get("/", (req, res) => {
         return res.send("hello")
     })
+    // Simple health check for uptime monitoring / quick tests
+    router.get('/api/health', (req, res) => res.status(200).json({ status: 'ok' }))
     //=====================API USER==========================//
     router.post('/api/create-new-user', userController.handleCreateNewUser)
     router.put('/api/update-user', middlewareControllers.verifyTokenUser, userController.handleUpdateUser)
